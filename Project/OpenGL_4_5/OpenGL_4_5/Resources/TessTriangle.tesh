@@ -1,0 +1,14 @@
+#version 430 core
+layout(triangles, equal_spacing, ccw) in;
+
+in vec3 Pos_TES[];
+out vec3 Pos_Final;
+void main()
+{
+Pos_Final=interpolate3D(WorldPos_ES_in[0], WorldPos_ES_in[1], WorldPos_ES_in[2]);
+gl_Position = Pos_Final;
+}
+vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
+{
+   	return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
+}
