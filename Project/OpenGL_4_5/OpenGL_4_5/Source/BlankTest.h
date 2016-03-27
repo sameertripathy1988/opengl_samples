@@ -15,6 +15,7 @@ public:
 	virtual void RenderScene() = 0;
 	virtual void UpdateScene(){};
 	virtual void UpdateInput(int x, int y, int z){ };
+	virtual void UpdateMouseWheel(int wheel, int direction, int x, int y) { };
 };
 
 #endif

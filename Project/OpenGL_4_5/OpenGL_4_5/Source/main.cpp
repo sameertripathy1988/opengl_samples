@@ -31,6 +31,7 @@ int nCurrentTest = CURRENT_TEST;
 void menu(int);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardSpecialFunc(int x, int y, int z);
+void mouseWheelFunction(int wheel, int direction, int x, int y);
 
 void RenderScene(void)
 {
@@ -70,13 +71,11 @@ int main(int argc, char **argv)
 	//glutInitWindowPosition(1920/2, 1080/2);//optional
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT); //optional
 	glutCreateWindow(currentTest->name);
-	glutCreateMenu(menu);
-	glutAddMenuEntry("Next", 1);
-	glutAddMenuEntry("Back", 2);
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	
 	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialFunc(keyboardSpecialFunc);
+	
+	glutMouseWheelFunc(mouseWheelFunction);
 	GLenum error = glewInit();
 	if (!glewIsSupported("GL_VERSION_4_5"))
 		std::cout << "GLEW 4.5 not supported\n ";
@@ -138,5 +137,11 @@ void keyboardSpecialFunc(int x, int y, int z)
 {
 	currentTest = tests[nCurrentTest];
 	currentTest->UpdateInput(x, y, z);
+}
+
+void mouseWheelFunction(int wheel, int direction, int x, int y)
+{
+	currentTest = tests[nCurrentTest];
+	currentTest->UpdateMouseWheel(wheel, direction, x, y);
 }
 

@@ -1,11 +1,9 @@
 #include "AmbientLightingTest.h"
 #include "ThirdParty\SOIL.h"
 
-#include "Camera.h"
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
 
-using namespace tdogl;
 
 float AmbientLightingTest::ambientStrength;
 
@@ -19,7 +17,7 @@ AmbientLightingTest::AmbientLightingTest()
 
 AmbientLightingTest::~AmbientLightingTest()
 {
-
+	delete mainCamera;
 }
 
 void AmbientLightingTest::InitScene()
@@ -116,11 +114,17 @@ void AmbientLightingTest::InitScene()
 
 	GLint texLoc = glGetUniformLocation(triangleShader->getProgramID(), "basic_texture");
 	glUniform1i(texLoc, 0);
+
+	mainCamera = new MyCamera();
+	mainCamera->setPosition(eye_pos);
+	glm::vec3 target_pos = glm::vec3(0, 0, -10);
+	mainCamera->setLookAt(target_pos);
+	mainCamera->SetIsNoLockedTarget(false);
 }
 
 glm::vec3 lightColor = glm::vec3(1.0, 1, 1.0);
 static float ambientStrength = 1.0f;
-
+static float fov = 60.0f;
 void AmbientLightingTest::RenderScene()
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);//clear white
@@ -129,15 +133,15 @@ void AmbientLightingTest::RenderScene()
 	glUseProgram(triangleShader->getProgramID());
 	
 	
-	glm::vec3 target_pos = glm::vec3(0,0,-10);
-
-	glm::mat4 matrix_view;
-	matrix_view = glm::lookAtRH(eye_pos, target_pos, glm::vec3(0, 1.0f, 0));
-	
 	glm::mat4 matrix_translation;
-	matrix_translation = glm::translate(glm::mat4(1), target_pos);
+	matrix_translation = glm::translate(glm::mat4(1), glm::vec3(0, 0, -10));
 
-	glm::mat4 matrix_projection = glm::perspectiveFovRH(glm::radians(60.0f), 1024.0f, 768.0f, 0.1f, 100.0f);
+	//View Matrix
+	glm::mat4 matrix_view;
+	matrix_view = mainCamera->getViewMatrix();
+
+	//Projection Matrix
+	glm::mat4 matrix_projection = mainCamera->getProjectionMatrix();
 
 	GLuint Projpos = glGetUniformLocation(triangleShader->getProgramID(), "P");
 	GLuint Viewpos = glGetUniformLocation(triangleShader->getProgramID(), "V");
@@ -156,23 +160,58 @@ void AmbientLightingTest::RenderScene()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
-void AmbientLightingTest:: UpdateInput(int x, int y, int z)
+void AmbientLightingTest::UpdateScene()
+{
+	mainCamera->refreshViewMatrix();
+}
+
+void AmbientLightingTest::UpdateMouseWheel(int wheel, int direction, int x, int y)
+{
+	mainCamera->setFOV(mainCamera->getFOV() - direction);
+
+	printf("%d , %d", x, y);
+	//mainCamera->setLookAt(glm::vec3(0, 0, -1.0f));
+}
+
+void AmbientLightingTest::UpdateInput(int x, int y, int z)
+{
+	UpdateCameraOnInput(x);
+	switch (x)
+	{
+	case 113://Q //Decrease the ambient Light
+			 if (ambientStrength > 0)
+			 	ambientStrength -= 0.1f;
+		break;
+	case 119://W //Increase the ambient Light
+			 if(ambientStrength < 1)
+			 	ambientStrength += 0.1f;
+			 break;
+	default:
+		break;
+	}
+}
+
+void AmbientLightingTest::UpdateCameraOnInput(int x)
 {
 	switch (x)
 	{
 	case 100://LEFT
-		if (ambientStrength > 0)
-			ambientStrength -= 0.1f;
+		mainCamera->setOffsetPosition(glm::vec3(-0.2, 0, 0));
 		break;
 	case 101://UP
+		mainCamera->setOffsetPosition(glm::vec3(0, 0.2f, 0));
 		break;
 	case 102://RIGHT
-		if(ambientStrength < 1)
-			ambientStrength += 0.1f;
+		mainCamera->setOffsetPosition(glm::vec3(0.2, 0, 0));
 		break;
 	case 103://DOWN
+		mainCamera->setOffsetPosition(glm::vec3(0, -0.2f, 0));
 		break;
-	default:
+	case 122://Z
+		mainCamera->setOffsetPosition(glm::vec3(0, 0, -0.2f));
+		break;
+	case 120://X
+		mainCamera->setOffsetPosition(glm::vec3(0, 0, 0.2f));
 		break;
 	}
 }

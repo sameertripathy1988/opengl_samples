@@ -100,7 +100,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NDEBUG;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\Dependecies\Includes;$(ProjectDir)\..\OpenGL_4_5\Helper</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\Dependecies\Includes;$(ProjectDir)\..\OpenGL_4_5\Helper;$(ProjectDir)\..\OpenGL_4_5\Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\Dependecies\Includes;$(ProjectDir)\..\OpenGL_4_5\Helper</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\..\Dependecies\Includes;$(ProjectDir)\..\OpenGL_4_5\Source;$(ProjectDir)\..\OpenGL_4_5\Helper</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="Helper\Camera.cpp" />
     <ClCompile Include="Helper\MathHelper.cpp" />
+    <ClCompile Include="Helper\MyCamera.cpp" />
     <ClCompile Include="Source\ColoredTriangle.cpp" />
     <ClCompile Include="Source\DiffuseLightingTest.cpp" />
     <ClCompile Include="Source\GeometryShaderCircleTest.cpp" />
@@ -170,8 +171,10 @@
   <ItemGroup>
     <ClInclude Include="Helper\Camera.h" />
     <ClInclude Include="Helper\MathHelper.h" />
+    <ClInclude Include="Helper\MyCamera.h" />
     <ClInclude Include="Source\BlankTest.h" />
     <ClInclude Include="Source\ColoredTriangle.h" />
+    <ClInclude Include="Source\Config.h" />
     <ClInclude Include="Source\DiffuseLightingTest.h" />
     <ClInclude Include="Source\GeometryShaderCircleTest.h" />
     <ClInclude Include="Source\GeometryShaderModelExplodingTest.h" />

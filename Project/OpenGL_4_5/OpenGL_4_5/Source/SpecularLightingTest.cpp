@@ -25,7 +25,7 @@ SpecularLightingTest::SpecularLightingTest()
 	eye_pos = glm::vec3(0, 2, -2);
 	target_pos = glm::vec3(0, 0, -10);
 	isLightMovementOn = false;
-	shineness = 64.0f;
+	shineness = 8.0f;
 }
 
 SpecularLightingTest::~SpecularLightingTest()
@@ -143,6 +143,11 @@ void SpecularLightingTest::InitScene()
 	// Set the vertex attributes (only position data for the lamp))
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
 	glBindVertexArray(0);
+
+	mainCamera = new MyCamera();
+	mainCamera->setPosition(eye_pos);
+	glm::vec3 target_pos = glm::vec3(0, 0, -10);
+	mainCamera->setLookAt(target_pos);
 }
 
 void SpecularLightingTest::RenderScene()
@@ -153,12 +158,12 @@ void SpecularLightingTest::RenderScene()
 	glUseProgram(diffuseShader->getProgramID());
 	
 	glm::mat4 matrix_view;
-	matrix_view = glm::lookAtRH(eye_pos, target_pos, glm::vec3(0, 1.0f, 0));
+	matrix_view = mainCamera->getViewMatrix();
 	
 	glm::mat4 matrix_translation;
 	matrix_translation = glm::translate(glm::mat4(1), target_pos);
 
-	glm::mat4 matrix_projection = glm::perspectiveFovRH(glm::radians(60.0f), 1024.0f, 768.0f, 0.1f, 100.0f);
+	glm::mat4 matrix_projection = mainCamera->getProjectionMatrix();
 
 	GLuint Projpos = glGetUniformLocation(diffuseShader->getProgramID(), "P");
 	GLuint Viewpos = glGetUniformLocation(diffuseShader->getProgramID(), "V");
@@ -220,39 +225,76 @@ void SpecularLightingTest::RenderScene()
 	glBindVertexArray(lampvao);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
- 
+
+void SpecularLightingTest::UpdateScene()
+{
+	mainCamera->refreshViewMatrix();
+}
+
+void SpecularLightingTest::UpdateMouseWheel(int wheel, int direction, int x, int y)
+{
+	mainCamera->setFOV(mainCamera->getFOV() - direction);
+}
+
 void SpecularLightingTest:: UpdateInput(int x, int y, int z)
 {
+	UpdateCameraOnInput(x);
 	switch (x)
 	{
 	case 99:
 		isLightMovementOn = !isLightMovementOn;
 		break;
-	case 100://LEFT
-		if (!isLightMovementOn && ambientStrength > 0)
+	case 106://J
+		light_pos.x -= 0.1f;
+		break;
+	case 107://K
+		light_pos.z += 0.1f;
+		break;
+	case 108://L
+		light_pos.x += 0.1f;
+		break;
+	case 105://I
+		light_pos.z -= 0.1f;
+		break;
+	case 113://Q //Decrease the ambient Light
+		if (ambientStrength > 0)
 			ambientStrength -= 0.1f;
-		else
-			light_pos.x -= 0.1f;
 		break;
-	case 101://UP
-		if (!isLightMovementOn)
-			eye_pos.y -= 0.1f;
-		else
-			light_pos.z -= 0.1f;
-		break;
-	case 102://RIGHT
-		if(!isLightMovementOn && ambientStrength < 1)
+	case 119://W //Increase the ambient Light
+		if (ambientStrength < 1)
 			ambientStrength += 0.1f;
-		else
-			light_pos.x += 0.1f;
 		break;
-	case 103://DOWN
-		if (!isLightMovementOn)
-			eye_pos.y += 0.1f;
-		else
-			light_pos.z += 0.1f;
+	case 110://N
+		shineness /= 2;
+		break;
+	case 109://M
+		shineness *= 2;
 		break;
 	default:
+		break;
+	}
+}
+void SpecularLightingTest::UpdateCameraOnInput(int x)
+{
+	switch (x)
+	{
+	case 100://LEFT
+		mainCamera->setOffsetPosition(glm::vec3(-0.2, 0, 0));
+		break;
+	case 101://UP
+		mainCamera->setOffsetPosition(glm::vec3(0, 0.2f, 0));
+		break;
+	case 102://RIGHT
+		mainCamera->setOffsetPosition(glm::vec3(0.2, 0, 0));
+		break;
+	case 103://DOWN
+		mainCamera->setOffsetPosition(glm::vec3(0, -0.2f, 0));
+		break;
+	case 122://Z
+		mainCamera->setOffsetPosition(glm::vec3(0, 0, -0.2f));
+		break;
+	case 120://X
+		mainCamera->setOffsetPosition(glm::vec3(0, 0, 0.2f));
 		break;
 	}
 }
