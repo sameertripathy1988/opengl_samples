@@ -18,7 +18,7 @@
 
 using namespace std;
 
-#define CURRENT_TEST 0
+#define CURRENT_TEST 9
 #define MAX_TESTS 12
 
 #define WINDOW_WIDTH 1024
@@ -32,6 +32,10 @@ void menu(int);
 void keyboardUp(unsigned char key, int x, int y);
 void keyboardSpecialFunc(int key, int x, int y);
 void mouseWheelFunction(int wheel, int direction, int x, int y);
+
+int prev_y = 0;
+int prev_x = 0;
+bool bIsMouseLBDown = false;
 
 void RenderScene(void)
 {
@@ -76,6 +80,38 @@ int main(int argc, char **argv)
 	glutSpecialFunc(keyboardSpecialFunc);
 	
 	glutMouseWheelFunc(mouseWheelFunction);
+	glutMouseFunc(
+		[](int button, int state, int x, int y)
+		{
+			if (button == GLUT_LEFT_BUTTON)
+			{
+				if (state == GLUT_DOWN)
+				{
+					bIsMouseLBDown = true;
+					prev_y = y;
+					prev_x = x;
+				}
+				else
+					bIsMouseLBDown = false;
+			}
+		}
+	);
+	glutMotionFunc(
+		[](int x, int y) {
+			if (bIsMouseLBDown)
+			{
+				int dx = x - prev_x;
+				int dy = y - prev_y;
+				currentTest->UpdateMouseInput(dx, dy, bIsMouseLBDown);
+				prev_y = y;
+				prev_x = x;
+			}
+			else
+			{
+				prev_x = x;
+				prev_y = y;
+			}
+		});
 	GLenum error = glewInit();
 	if (error == GLEW_OK) {
 
@@ -122,7 +158,7 @@ void switchTest()
 	currentTest->InitScene();
 	glutSetWindowTitle(currentTest->name);
 }
-
+//Only once when key is released
 void keyboardUp(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -147,13 +183,15 @@ void keyboardUp(unsigned char key, int x, int y)
 	case 27:
 		exit(0);
 		break;
+	
 	default:
-		currentTest = tests[nCurrentTest];
-		currentTest->UpdateInput((int)key, x, y);
+		/*currentTest = tests[nCurrentTest];*/
+		currentTest->UpdateButtonUp(key);
 		break;
 	}
 }
 
+//Continous press inputs if kept pressed
 void keyboardSpecialFunc(int key, int x, int y)
 {
 	switch (key)
@@ -162,6 +200,7 @@ void keyboardSpecialFunc(int key, int x, int y)
 			switchTest();
 			break;
 		default:
+			currentTest->UpdateInput(key, x, y);
 			break;
 	}
 }

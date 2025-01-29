@@ -1,5 +1,6 @@
 #include "MVPTest.h"
 #include "ThirdParty\SOIL.h"
+#include <Util.h>
 static float angle = 0;
 static Vector camPos(0.0f, 2.0f, 5.0f);
 
@@ -69,22 +70,7 @@ void MVPTest::InitScene()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	
-	
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	int width, height, channels;
-	unsigned char* pixelData = NULL;
-	pixelData = SOIL_load_image("Texture.png", &width, &height, &channels, 4);
-
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)pixelData);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	GLuint tex_id = Util::loadTexture("Texture.png");
 
 	glUseProgram(texShader->getProgramID());
 	

@@ -3,6 +3,7 @@
 
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
+#include <Util.h>
 
 
 float AmbientLightingTest::ambientStrength;
@@ -96,20 +97,7 @@ void AmbientLightingTest::InitScene()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(GLfloat), (const GLvoid*)(5 * sizeof(GLfloat)));
 
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	int width, height, channels;
-	unsigned char* pixelData = NULL;
-	pixelData = SOIL_load_image("crate.png", &width, &height, &channels, 4);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)pixelData);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
+	GLuint tex_id = Util::loadTexture("crate.png");
 	glUseProgram(triangleShader->getProgramID());
 
 	GLint texLoc = glGetUniformLocation(triangleShader->getProgramID(), "basic_texture");
@@ -167,51 +155,39 @@ void AmbientLightingTest::UpdateScene()
 
 void AmbientLightingTest::UpdateMouseWheel(int wheel, int direction, int x, int y)
 {
-	mainCamera->setFOV(mainCamera->getFOV() - direction);
-
-	printf("%d , %d", x, y);
-	//mainCamera->setLookAt(glm::vec3(0, 0, -1.0f));
+	
 }
 
-void AmbientLightingTest::UpdateInput(int x, int y, int z)
+void AmbientLightingTest::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 {
-	UpdateCameraOnInput(x);
+	mainCamera->setOffsetPosition(glm::vec3(0, dy * 0.2f, 0));
+}
+
+void AmbientLightingTest::UpdateInput(char x, int y, int z)
+{
 	switch (x)
 	{
-	case 113://Q //Decrease the ambient Light
-			 if (ambientStrength > 0)
-			 	ambientStrength -= 0.1f;
-		break;
-	case 119://W //Increase the ambient Light
-			 if(ambientStrength < 1)
-			 	ambientStrength += 0.1f;
-			 break;
-	default:
-		break;
+		case GLUT_KEY_DOWN://Q //Decrease the ambient Light
+				 if (ambientStrength > 0)
+			 		ambientStrength -= 0.1f;
+			break;
+		case GLUT_KEY_UP://W //Increase the ambient Light
+				 if(ambientStrength < 1)
+			 		ambientStrength += 0.1f;
+				 break;
+		default:
+			break;
 	}
 }
 
-void AmbientLightingTest::UpdateCameraOnInput(int x)
+void AmbientLightingTest::UpdateButtonUp(char x)
 {
 	switch (x)
 	{
-	case 100://LEFT
-		mainCamera->setOffsetPosition(glm::vec3(-0.2, 0, 0));
-		break;
-	case 101://UP
-		mainCamera->setOffsetPosition(glm::vec3(0, 0.2f, 0));
-		break;
-	case 102://RIGHT
-		mainCamera->setOffsetPosition(glm::vec3(0.2, 0, 0));
-		break;
-	case 103://DOWN
-		mainCamera->setOffsetPosition(glm::vec3(0, -0.2f, 0));
-		break;
-	case 122://Z
-		mainCamera->setOffsetPosition(glm::vec3(0, 0, -0.2f));
-		break;
-	case 120://X
-		mainCamera->setOffsetPosition(glm::vec3(0, 0, 0.2f));
-		break;
+		case 'm':
+			cout << "M" << endl;
+			break;
+		default:
+			break;
 	}
 }

@@ -14,10 +14,10 @@ public:
 	void InitScene();
 	void RenderScene();
 	void UpdateScene();
-	void UpdateInput(int x, int y, int z);
-	void UpdateCameraOnInput(int x);
+	void UpdateInput(char x, int y, int z);
+	void UpdateButtonUp(char x);
 	void UpdateMouseWheel(int wheel, int direction, int x, int y);
-
+	void UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown);
 	GLuint vbo;
 	GLuint vao;
 	HelperShader* triangleShader;

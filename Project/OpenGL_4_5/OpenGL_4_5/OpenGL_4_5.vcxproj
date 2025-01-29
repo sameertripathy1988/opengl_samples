@@ -155,6 +155,7 @@
     <ClCompile Include="Helper\Camera.cpp" />
     <ClCompile Include="Helper\MathHelper.cpp" />
     <ClCompile Include="Helper\MyCamera.cpp" />
+    <ClCompile Include="Helper\Util.cpp" />
     <ClCompile Include="Source\ColoredTriangle.cpp" />
     <ClCompile Include="Source\DiffuseLightingTest.cpp" />
     <ClCompile Include="Source\GeometryShaderCircleTest.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Helper\Camera.h" />
     <ClInclude Include="Helper\MathHelper.h" />
     <ClInclude Include="Helper\MyCamera.h" />
+    <ClInclude Include="Helper\Util.h" />
     <ClInclude Include="Source\BlankTest.h" />
     <ClInclude Include="Source\ColoredTriangle.h" />
     <ClInclude Include="Source\Config.h" />

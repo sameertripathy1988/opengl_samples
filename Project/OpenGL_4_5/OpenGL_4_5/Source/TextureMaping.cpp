@@ -2,6 +2,7 @@
 
 #include "ThirdParty\SOIL.h"
 
+#include "Util.h"
 
 TextureMaping::TextureMaping()
 {
@@ -69,28 +70,12 @@ void TextureMaping::InitScene()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	int width, height, channels;
-	unsigned char* pixelData = NULL;
-	pixelData = SOIL_load_image("Texture.png", &width, &height, &channels, 4);
-
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)pixelData);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	GLuint tex_id = Util::loadTexture("Texture.png");
 
 	glUseProgram(texShader->getProgramID());
 
 	GLint texLoc = glGetUniformLocation(texShader->getProgramID(), "basic_texture");
 	glUniform1i(texLoc, 0);
-
-
 }
 void TextureMaping::RenderScene()
 {
