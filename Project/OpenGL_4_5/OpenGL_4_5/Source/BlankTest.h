@@ -16,6 +16,10 @@ public:
 	virtual void UpdateScene(){};
 	virtual void UpdateInput(int x, int y, int z){ };
 	virtual void UpdateMouseWheel(int wheel, int direction, int x, int y) { };
+	virtual void clear() 
+	{
+		std::cout << "Clearing test name: " << name << std::endl;
+	};
 };
 
 #endif

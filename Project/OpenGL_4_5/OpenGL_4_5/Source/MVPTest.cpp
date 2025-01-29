@@ -22,8 +22,6 @@ void MVPTest::InitScene()
 		-0.5f, -0.5f, 0.0f //0,0
 	};
 
-	
-
 	indices[0] = 0;
 	indices[1] = 1;
 	indices[2] = 2;

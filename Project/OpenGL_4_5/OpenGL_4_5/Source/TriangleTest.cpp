@@ -49,3 +49,9 @@ void TriangleTest::RenderScene()
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 }
+
+void TriangleTest::clear()
+{
+	delete triangleShader;
+	triangleShader = nullptr;
+}

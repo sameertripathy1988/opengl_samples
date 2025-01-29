@@ -12,6 +12,8 @@ public:
 	void InitScene();
 	void RenderScene();
 
+	void clear();
+
 	GLuint vbo;
 	GLuint vao;
 	HelperShader* triangleShader;

@@ -72,6 +72,9 @@
     <ClCompile Include="Source\SpecularLightingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Helper\MyCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\HelperShader.h">
@@ -127,6 +130,12 @@
     </ClInclude>
     <ClInclude Include="Source\SpecularLightingTest.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\MyCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Config.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

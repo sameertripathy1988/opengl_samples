@@ -12,7 +12,7 @@ public:
 	glm::vec3& getPosition();
 	void refreshViewMatrix();
 	void setPosition(glm::vec3& _position);
-	void setOffsetPosition(glm::vec3& _offset);
+	void setOffsetPosition(glm::vec3 _offset);
 	float& getFOV();
 	void setFOV(const float& _fov);
 	void setLookAt(const glm::vec3& _targetPoint);

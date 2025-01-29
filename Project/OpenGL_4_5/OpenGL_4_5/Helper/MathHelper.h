@@ -183,7 +183,7 @@ struct Quaternion
 
 		return r;
 	}
-	void Quaternion::CreateFromAxisAngle(const float &in_x, const float &in_y, const float &in_z, const float &in_degrees)
+	void CreateFromAxisAngle(const float &in_x, const float &in_y, const float &in_z, const float &in_degrees)
 	{
 
 		float halfAngle = float(TORADIAN(in_degrees)) / 2;

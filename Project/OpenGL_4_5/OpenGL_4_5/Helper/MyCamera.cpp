@@ -47,7 +47,7 @@ void MyCamera::setPosition(glm::vec3& _position)
 	position = position;
 }
 
-void MyCamera::setOffsetPosition(glm::vec3 & _offset)
+void MyCamera::setOffsetPosition(glm::vec3  _offset)
 {
 	position += _offset;
 }

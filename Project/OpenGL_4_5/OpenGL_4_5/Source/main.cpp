@@ -18,7 +18,7 @@
 
 using namespace std;
 
-#define CURRENT_TEST 9
+#define CURRENT_TEST 0
 #define MAX_TESTS 12
 
 #define WINDOW_WIDTH 1024
@@ -30,7 +30,7 @@ int nCurrentTest = CURRENT_TEST;
 
 void menu(int);
 void keyboardUp(unsigned char key, int x, int y);
-void keyboardSpecialFunc(int x, int y, int z);
+void keyboardSpecialFunc(int key, int x, int y);
 void mouseWheelFunction(int wheel, int direction, int x, int y);
 
 void RenderScene(void)
@@ -77,6 +77,15 @@ int main(int argc, char **argv)
 	
 	glutMouseWheelFunc(mouseWheelFunction);
 	GLenum error = glewInit();
+	if (error == GLEW_OK) {
+
+		// Get the OpenGL version string
+		const char* glew_version_str = (const char*)glGetString(GL_VERSION);
+
+		// Print the version
+		std::cout << "Supported OpenGL version with GLEW: " << glew_version_str << std::endl;
+
+	}
 	if (!glewIsSupported("GL_VERSION_4_5"))
 		std::cout << "GLEW 4.5 not supported\n ";
 	
@@ -101,6 +110,19 @@ void menu(int value)
 	currentTest->InitScene();
 }
 
+void clearCurrentTest()
+{
+	currentTest->clear();
+}
+
+void switchTest()
+{
+	clearCurrentTest();
+	currentTest = tests[nCurrentTest];
+	currentTest->InitScene();
+	glutSetWindowTitle(currentTest->name);
+}
+
 void keyboardUp(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -109,19 +131,18 @@ void keyboardUp(unsigned char key, int x, int y)
 		if (nCurrentTest != MAX_TESTS - 1)
 		{
 			nCurrentTest++;
-			currentTest = tests[nCurrentTest];
-			currentTest->InitScene();
-			glutSetWindowTitle(currentTest->name);
+			switchTest();
 		}
 		break;
 	case 'a':
 		if (nCurrentTest != 0)
 		{
 			nCurrentTest--;
-			currentTest = tests[nCurrentTest];
-			currentTest->InitScene();
-			glutSetWindowTitle(currentTest->name);
+			switchTest();
 		}
+		break;
+	case GLUT_KEY_F5:
+		switchTest();
 		break;
 	case 27:
 		exit(0);
@@ -133,10 +154,16 @@ void keyboardUp(unsigned char key, int x, int y)
 	}
 }
 
-void keyboardSpecialFunc(int x, int y, int z)
+void keyboardSpecialFunc(int key, int x, int y)
 {
-	currentTest = tests[nCurrentTest];
-	currentTest->UpdateInput(x, y, z);
+	switch (key)
+	{
+		case GLUT_KEY_F5:
+			switchTest();
+			break;
+		default:
+			break;
+	}
 }
 
 void mouseWheelFunction(int wheel, int direction, int x, int y)
