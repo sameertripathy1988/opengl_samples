@@ -15,11 +15,12 @@
 #include "AmbientLightingTest.h"
 #include "DiffuseLightingTest.h"
 #include "SpecularLightingTest.h"
+#include "PhongLighting.h"
 
 using namespace std;
 
-#define CURRENT_TEST 9
-#define MAX_TESTS 12
+#define CURRENT_TEST 12
+#define MAX_TESTS 13
 
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 768
@@ -67,6 +68,7 @@ int main(int argc, char **argv)
 	tests[9] = new AmbientLightingTest();
 	tests[10] = new DiffuseLightingTest();
 	tests[11] = new SpecularLightingTest();
+	tests[12] = new PhongLighting();
 
 	currentTest = tests[nCurrentTest];
 
@@ -122,6 +124,12 @@ int main(int argc, char **argv)
 		std::cout << "Supported OpenGL version with GLEW: " << glew_version_str << std::endl;
 
 	}
+	if (GL_ARB_direct_state_access)
+	{
+		cout << "DSA" << endl;
+	}
+	else
+		cout << "No DSA" << endl;
 	if (!glewIsSupported("GL_VERSION_4_5"))
 		std::cout << "GLEW 4.5 not supported\n ";
 	
@@ -163,7 +171,7 @@ void keyboardUp(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 'd':
+	case 's':
 		if (nCurrentTest != MAX_TESTS - 1)
 		{
 			nCurrentTest++;

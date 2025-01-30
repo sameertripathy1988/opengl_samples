@@ -42,12 +42,12 @@ void MyCamera::refreshViewMatrix()
 	mat_View = glm::lookAtRH(position, lookAtTarget, glm::vec3(0, 1.0f, 0));
 }
 
-void MyCamera::setPosition(glm::vec3& _position)
+void MyCamera::setPosition(const glm::vec3& _position)
 {
-	position = position;
+	position = _position;
 }
 
-void MyCamera::setOffsetPosition(glm::vec3  _offset)
+void MyCamera::setOffsetPosition(const glm::vec3&  _offset)
 {
 	position += _offset;
 }
@@ -64,7 +64,7 @@ void MyCamera::setFOV(const float& _fov)
 	mat_perspectiveProj = glm::perspectiveFovRH(glm::radians(fov), width, height, nearPlane, farPlane);
 }
 
-void MyCamera::setLookAt(const glm::vec3& _targetPoint)
+void MyCamera::setLookAt(const glm::vec3 _targetPoint)
 {
 	lookAtTarget = _targetPoint;
 }
