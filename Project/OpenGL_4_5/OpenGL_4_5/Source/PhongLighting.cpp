@@ -5,7 +5,7 @@
 #include "glm\glm\glm.hpp"
 
 #define PLANE_POSITION glm::vec3(0, -2, -3)
-#define PLANE_SCALE glm::vec3(2.5f, 1.0f, 2.5f)
+#define PLANE_SCALE glm::vec3(1.5f, 1.0f, 1.5f)
 
 #define CUBE_POSITION glm::vec3(0, -1.74f, -3)
 #define CUBE_SCALE glm::vec3(0.25f, 0.25f, 0.25f)

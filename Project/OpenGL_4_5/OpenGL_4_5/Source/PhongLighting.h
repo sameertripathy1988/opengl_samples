@@ -19,7 +19,6 @@ public:
 	void printDebugInfo();
 	
 	shared_ptr<HelperShader> phongShader;
-
 	unique_ptr<MeshRenderer> cubeMesh;
 	shared_ptr<Material> phongMaterial;
 

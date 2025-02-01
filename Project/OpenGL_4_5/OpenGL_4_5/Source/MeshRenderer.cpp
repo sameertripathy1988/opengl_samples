@@ -1,7 +1,7 @@
 #include "MeshRenderer.h"
 #include "GeometryData.h"
 
-MeshRenderer::MeshRenderer() : material(nullptr), model_vbo(0), model_vao(0),
+MeshRenderer::MeshRenderer() : material(nullptr), model_vbo(0), model_vao(0), ebo(0),
 meshType(PLANE), translation(0.0f), rotation(0.0f), scale(1.0f)
 {
 }
@@ -10,6 +10,7 @@ MeshRenderer::~MeshRenderer()
 {
 	if (model_vbo)  glDeleteBuffers(1, &model_vbo);
 	if (model_vao)  glDeleteVertexArrays(1, &model_vao);
+	if (ebo)  glDeleteBuffers(1, &ebo);
 }
 
 void MeshRenderer::render()
@@ -73,7 +74,7 @@ void MeshRenderer::createPlane()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_pos_uv_n), plane_pos_uv_n, GL_STATIC_DRAW);
 
 	// Generate and bind the EBO
-	GLuint ebo;
+	
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeIndices), planeIndices, GL_STATIC_DRAW);
@@ -81,13 +82,13 @@ void MeshRenderer::createPlane()
 	// Define the vertex attributes
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
 	// Unbind the VAO
-	glBindVertexArray(0);;
+	glBindVertexArray(0);
 }
 
 void MeshRenderer::createCube()
@@ -127,7 +128,7 @@ void MeshRenderer::renderPlane()
 void MeshRenderer::renderCube()
 {
 	glUseProgram(material->shader->getProgramID());
-	glBindVertexArray(model_vbo);
+	glBindVertexArray(model_vao);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 

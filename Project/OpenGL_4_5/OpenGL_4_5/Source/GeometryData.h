@@ -54,10 +54,10 @@ GLfloat cube_pos_uv_n[] = {
 
 GLfloat plane_pos_uv_n[] = {
 	// Positions         // Texture Coords  // Normals    
-	-0.5f, 0.0f, -0.5f,   0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-	 0.5f, 0.0f, -0.5f,   1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-	 0.5f, 0.0f,  0.5f,   1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-	-0.5f, 0.0f,  0.5f,   0.0f, 1.0f, 0.0f, 1.0f, 0.0f
+	-1.0f, 0.0f, -1.0f,   0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+	 1.0f, 0.0f, -1.0f,   1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+	 1.0f, 0.0f,  1.0f,   1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+	-1.0f, 0.0f,  1.0f,   0.0f, 1.0f, 0.0f, 1.0f, 0.0f
 };
 
 GLuint planeIndices[] = {

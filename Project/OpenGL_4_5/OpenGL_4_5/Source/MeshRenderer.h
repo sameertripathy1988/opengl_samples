@@ -41,6 +41,7 @@ private:
 
 	GLuint model_vbo;
 	GLuint model_vao;
+	GLuint ebo;
 
 	void createPlane();
 	void createCube();
