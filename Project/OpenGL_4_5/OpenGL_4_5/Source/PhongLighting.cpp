@@ -4,11 +4,23 @@
 #include <glm/glm/gtc/matrix_transform.hpp> 
 #include "glm\glm\glm.hpp"
 
-PhongLighting::PhongLighting()
+#define PLANE_POSITION glm::vec3(0, -2, -3)
+#define PLANE_SCALE glm::vec3(2.5f, 1.0f, 2.5f)
+
+#define CUBE_POSITION glm::vec3(0, -1.74f, -3)
+#define CUBE_SCALE glm::vec3(0.25f, 0.25f, 0.25f)
+
+#define LIGHT_POSITION glm::vec3(0, -1.2, -3)
+#define LIGHT_SCALE glm::vec3(0.05f, 0.05f, 0.05f)
+
+#define CAMERA_POSITION glm::vec3(0, 0, 0)
+#define CAMERA_TARGET PLANE_POSITION
+
+float rot = 0.0f;
+PhongLighting::PhongLighting() : isDirty(false), enableCameraMovement(false), enableLightMovement(false), 
+light_pos(glm::vec3(0, 2, -5)), eye_pos(glm::vec3(0, 2, 0))
 {
 	name = "OpenGL 4.5 Phong Lighting Test";
-	light_pos = glm::vec3(2.2,4.4, -10.0);
-	eye_pos = glm::vec3(0,7.6,0);
 }
 
 PhongLighting::~PhongLighting()
@@ -17,131 +29,127 @@ PhongLighting::~PhongLighting()
 
 void PhongLighting::InitScene()
 {
-	cubeMesh = new MeshRenderer();
-	cubeMesh->create(MESH_TYPE::CUBE);
+	//Camera
+	//-----------------------------------------------------------------------------------------
+	mainCamera = new MyCamera();
+	mainCamera->setPosition(CAMERA_POSITION);
+	target_pos = glm::vec3(0, 0, -5);
+	mainCamera->setLookAt(CAMERA_TARGET); //Cube Position
 
-	phongShader = new HelperShader();
-	phongShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
+	mainCamera->refreshViewMatrix();
+	//-----------------------------------------------------------------------------------------
 	
-	phongMaterial = new Material();
+	//Cube Mesh
+	//-----------------------------------------------------------------------------------------
+	cubeMesh = make_unique<MeshRenderer>();
+	cubeMesh->create(MESH_TYPE::CUBE);
+	cubeMesh->setTranslation(CUBE_POSITION);
+	cubeMesh->setScale(CUBE_SCALE);
+
+	phongShader = make_shared<HelperShader>();
+	phongShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
+
+	phongMaterial = make_shared<Material>();
 	phongMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "crate.png");
 	phongMaterial->setShader(phongShader);
 
 	cubeMesh->setMaterial(phongMaterial);
 
-	
-
-	//glUseProgram(lampShader->getProgramID());
-
-	//glGenVertexArrays(1, &lampvao);
-	//glBindVertexArray(lampvao);
-	//// We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	//glBindVertexArray(lampvao);
-	//glEnableVertexAttribArray(0);
-	//// Set the vertex attributes (only position data for the lamp))
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
-	//glBindVertexArray(0);
-
-	mainCamera = new MyCamera();
-	mainCamera->setPosition(eye_pos);
-	target_pos = glm::vec3(0, 0, -10);
-	mainCamera->setLookAt(target_pos);
-
-	mainCamera->refreshViewMatrix();
-
-	glm::mat4 matrix_translation;
-	matrix_translation = glm::translate(glm::mat4(1), target_pos);
-
-	phongMaterial->apply();
+	phongMaterial->bind();
 	phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
 	phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	phongMaterial->linkMatrixToShader("M", &matrix_translation[0][0]);
-
-	phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-
-	//Lamp Cube Mesh
-	lampMesh = new MeshRenderer();
-	lampMesh->create(CUBE);
-
-	lampShader = new HelperShader();
-	lampShader->createProgram("MVP_LampFlatColor.vsh", "MVP_LampFlatColor.fsh");
-
-	lampMaterial = new Material();
-	lampMaterial->setShader(lampShader);
-	lampMesh->setMaterial(lampMaterial);
-
-	lampMaterial->apply();
-	lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	lampMaterial->linkVec3ToShader("flat_color", 1.0f, 1.0f, 1.0f);
-
-	glm::mat4 matrix_lamp_translation;
-	matrix_lamp_translation = glm::translate(glm::mat4(1), light_pos);
-
-	glm::mat4 matrix_lamp_scale = glm::scale(glm::mat4(1), glm::vec3(0.15f, 0.15f, 0.15f));
-	matrix_lamp_translation = matrix_lamp_translation * matrix_lamp_scale;
-
-	lampMaterial->linkMatrixToShader("M", &matrix_lamp_translation[0][0]);
-
-	//Plane
-	/*planeMesh = new MeshRenderer();
+	phongMaterial->linkMatrixToShader("M", &cubeMesh->getModelMatrix()[0][0]);
+	phongMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
+	phongMaterial->unbind();
+	//-----------------------------------------------------------------------------------------
+	
+	//Plane Mesh
+	//-----------------------------------------------------------------------------------------
+	planeMesh = make_unique<MeshRenderer>();
 	planeMesh->create(PLANE);
+	planeMesh->setTranslation(PLANE_POSITION);
+	planeMesh->setScale(PLANE_SCALE);
 
-	planeShader = new HelperShader();
+	planeShader = make_shared<HelperShader>();
 	planeShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
 
-	planeMaterial = new Material();
-	planeMaterial->setTextureInfo(DIFFUSE, "crate.png");
-	planeMaterial->setShader(phongShader);
-	
+	planeMaterial = make_shared<Material>();
+	planeMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "Textures/brickwall.jpg");
+	planeMaterial->setShader(planeShader);
+	planeMaterial->bind();
+
 	planeMesh->setMaterial(planeMaterial);
-	planeMaterial->apply();
-	glm::mat4 matrix_plane_translation;
-	matrix_plane_translation = glm::translate(glm::mat4(1), glm::vec3(0, -1, -10));
-
-	glm::mat4 matrix_plane_scale = glm::scale(glm::mat4(1), glm::vec3(10.0f, 10.0f, 1.0f));
-
-	matrix_plane_translation = matrix_plane_translation * matrix_plane_scale;
 
 	planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
 	planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	planeMaterial->linkMatrixToShader("M", &matrix_plane_translation[0][0]);
-	planeMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);*/
+	planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
+	planeMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
+	planeMaterial->unbind();
+
+	//-----------------------------------------------------------------------------------------
+
+	//Lamp Cube Mesh
+	//-----------------------------------------------------------------------------------------
+	lampMesh = make_unique<MeshRenderer>();
+	lampMesh->create(CUBE);
+	lampMesh->setTranslation(LIGHT_POSITION);
+	lampMesh->setScale(LIGHT_SCALE);
+
+	lampShader = make_shared<HelperShader>();
+	lampShader->createProgram("MVP_LampFlatColor.vsh", "MVP_LampFlatColor.fsh");
+
+	lampMaterial = make_shared<Material>();
+	lampMaterial->setShader(lampShader);
+	lampMaterial->bind();
+
+	lampMesh->setMaterial(lampMaterial);
+	
+	lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
+	lampMaterial->linkMatrixToShader("M", &lampMesh->getModelMatrix()[0][0]);
+	lampMaterial->linkVec3ToShader("flat_color", 1.0f, 1.0f, 1.0f);
+	
+	//-----------------------------------------------------------------------------------------
 }
 
 void PhongLighting::RenderScene()
 {
-	glClearColor(0.2, 0.2, 0.2, 1.0);//clear white
+	glClearColor(0.25, 0.25, 0.25, 1.0); // clear white
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	cubeMesh->render(CUBE);
-
-	//planeMesh->render(CUBE);
-	////Render one plane
-	//glm::mat4 matrix_plane_translation;
-	//matrix_plane_translation = glm::translate(glm::mat4(1), glm::vec3(0, -1, -10));
-
-	//glm::mat4 matrix_plane_scale = glm::scale(glm::mat4(1), glm::vec3(10.0f, 0.15f, 10.0f));
-
-	//matrix_plane_translation = matrix_plane_translation * matrix_plane_scale;
-
-	//glUniformMatrix4fv(Modelpos, 1, GL_FALSE, &matrix_plane_translation[0][0]);
-
-	//glBindVertexArray(vao);
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-	//
-	//Render Light using a LAMP object
-	//
-	lampMesh->render(CUBE);
+	// Render Lamp Mesh
+	
+	lampMesh->render();
+	
+	//// Render Plane Mesh
+	
+	planeMesh->render();
+	
+	// Render Cube Mesh
+	
+	cubeMesh->render();
+	
+	
 }
 
 void PhongLighting::UpdateScene()
 {
-	mainCamera->refreshViewMatrix();
+	if (isDirty)
+	{
+		mainCamera->refreshViewMatrix();
+		lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
+		lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
+
+		phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
+		phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
+
+		planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
+		planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
+
+		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
+		
+		isDirty = false;
+	}
 }
 
 void PhongLighting::UpdateInput(char x, int y, int z)
@@ -184,9 +192,20 @@ void PhongLighting::UpdateButtonUp(char x)
 void PhongLighting::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 {
 	if (enableCameraMovement)
+	{
 		mainCamera->setOffsetPosition(glm::vec3(0, dy * 0.2f, 0));
+		mainCamera->refreshViewMatrix();
+		/*rot += dx * 0.2f;
+		planeMesh->setRotation(glm::vec3(rot, 0, 0));*/
+		//planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
+	}
+
 	if(enableLightMovement)
-		light_pos += glm::vec3(dx*0.2f, -dy * 0.2f, 0);
+	{
+		lampMesh->setTranslation(lampMesh->getTranslation() + glm::vec3(dx * 0.2f, -dy * 0.2f, 0));
+		light_pos = lampMesh->getTranslation();
+	}
+	isDirty = true;
 }
 
 void PhongLighting::printDebugInfo()
@@ -197,8 +216,8 @@ void PhongLighting::printDebugInfo()
 		<< mainCamera->getPosition().z << endl;
 
 	cout << "Light Position " << endl
-		<< light_pos.x << endl
-		<< light_pos.y << endl
-		<< light_pos.z << endl;
+		<< lampMesh->getTranslation().x << endl
+		<< lampMesh->getTranslation().y << endl
+		<< lampMesh->getTranslation().z << endl;
 }
 

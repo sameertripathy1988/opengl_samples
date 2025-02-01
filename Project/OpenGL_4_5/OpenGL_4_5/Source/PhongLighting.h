@@ -18,10 +18,10 @@ public:
 	void UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown);
 	void printDebugInfo();
 	
-	HelperShader* phongShader;
+	shared_ptr<HelperShader> phongShader;
 
-	MeshRenderer* cubeMesh;
-	Material* phongMaterial;
+	unique_ptr<MeshRenderer> cubeMesh;
+	shared_ptr<Material> phongMaterial;
 
 	glm::vec3 eye_pos;
 	glm::vec3 light_pos;
@@ -29,17 +29,18 @@ public:
 	glm::vec3 target_pos;
 
 	//Lamp Mesh
-	HelperShader* lampShader;
-	MeshRenderer* lampMesh;
-	Material* lampMaterial;
+	shared_ptr<HelperShader> lampShader;
+	unique_ptr<MeshRenderer> lampMesh;
+	shared_ptr<Material>lampMaterial;
 	//Plane
-	HelperShader* planeShader;
-	MeshRenderer* planeMesh;
-	Material* planeMaterial;
+	shared_ptr<HelperShader> planeShader;
+	unique_ptr<MeshRenderer> planeMesh;
+	shared_ptr<Material> planeMaterial;
 
 	//Input
 	bool enableCameraMovement;
 	bool enableLightMovement;
 
+	bool isDirty;
 };
 
