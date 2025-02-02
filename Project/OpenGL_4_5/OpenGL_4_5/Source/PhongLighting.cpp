@@ -51,6 +51,7 @@ void PhongLighting::InitScene()
 
 	phongMaterial = make_shared<Material>();
 	phongMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "crate.png");
+	phongMaterial->setTextureInfo(TEXTURE_TYPE::NORMAL, "crate_normal.png");
 	phongMaterial->setShader(phongShader);
 
 	cubeMesh->setMaterial(phongMaterial);
@@ -60,6 +61,8 @@ void PhongLighting::InitScene()
 	phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
 	phongMaterial->linkMatrixToShader("M", &cubeMesh->getModelMatrix()[0][0]);
 	phongMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
+	phongMaterial->linkIntToShader("enable_normal_map", 0);
+
 	phongMaterial->unbind();
 	//-----------------------------------------------------------------------------------------
 	
@@ -75,15 +78,19 @@ void PhongLighting::InitScene()
 
 	planeMaterial = make_shared<Material>();
 	planeMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "Textures/brickwall.jpg");
+	planeMaterial->setTextureInfo(TEXTURE_TYPE::NORMAL, "Textures/brickwall_normal.jpg");
 	planeMaterial->setShader(planeShader);
 	planeMaterial->bind();
 
 	planeMesh->setMaterial(planeMaterial);
 
+	planeMaterial->bind();
 	planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
 	planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
 	planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
 	planeMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
+	planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
+	planeMaterial->linkIntToShader("enable_normal_map", 1);
 	planeMaterial->unbind();
 
 	//-----------------------------------------------------------------------------------------
@@ -142,9 +149,13 @@ void PhongLighting::UpdateScene()
 
 		phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
 		phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
+		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
+		phongMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
 
 		planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
 		planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
+		planeMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
+		planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
 
 		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
 		

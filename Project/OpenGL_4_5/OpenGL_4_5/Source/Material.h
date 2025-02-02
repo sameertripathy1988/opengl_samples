@@ -27,7 +27,7 @@ public:
 	
 	void linkMatrixToShader(const char* matrix_name_shader, const GLfloat* value);
 	void linkVec3ToShader(const char* vec3_name_shader, GLfloat x, GLfloat y, GLfloat z);
-
+	void linkIntToShader(const std::string& name, int value);
 	glm::vec4 getColor();
 
 	shared_ptr<HelperShader> shader;

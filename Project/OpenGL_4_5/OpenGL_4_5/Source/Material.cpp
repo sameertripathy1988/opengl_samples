@@ -128,6 +128,11 @@ void Material::linkVec3ToShader(const char* vec3_name_shader, GLfloat x, GLfloat
 	glUseProgram(shader->getProgramID());
 	glUniform3f(glGetUniformLocation(shader->getProgramID(), vec3_name_shader), x, y, z);
 }
+void Material::linkIntToShader(const std::string& name, int value)
+{
+	GLint location = glGetUniformLocation(shader->getProgramID(), name.c_str());
+	glUniform1i(location, value);
+}
 
 glm::vec4 Material::getColor()
 {

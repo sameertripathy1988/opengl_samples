@@ -60,6 +60,14 @@ GLfloat plane_pos_uv_n[] = {
 	-1.0f, 0.0f,  1.0f,   0.0f, 1.0f, 0.0f, 1.0f, 0.0f
 };
 
+GLfloat plane_pos_uv_n_t_b[] = {
+	// Positions         // Texture Coords  // Normals       // Tangents       // Bitangents
+	-1.0f, 0.0f, -1.0f,    0.0f, 0.0f,       0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+	 1.0f, 0.0f, -1.0f,    1.0f, 0.0f,       0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+	 1.0f, 0.0f,  1.0f,    1.0f, 1.0f,       0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f,
+	-1.0f, 0.0f,  1.0f,    0.0f, 1.0f,       0.0f, 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, 1.0f
+};
+
 GLuint planeIndices[] = {
 	   0, 1, 2,
 	   2, 3, 0

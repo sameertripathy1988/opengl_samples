@@ -64,31 +64,30 @@ void MeshRenderer::setMaterial(const shared_ptr<Material>& material_)
 
 void MeshRenderer::createPlane()
 {
-	// Generate and bind the VAO
+	
 	glGenVertexArrays(1, &model_vao);
 	glBindVertexArray(model_vao);
 
-	// Generate and bind the VBO
 	glGenBuffers(1, &model_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, model_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_pos_uv_n), plane_pos_uv_n, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(plane_pos_uv_n_t_b), plane_pos_uv_n_t_b, GL_STATIC_DRAW);
 
-	// Generate and bind the EBO
-	
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(planeIndices), planeIndices, GL_STATIC_DRAW);
 
-	// Define the vertex attributes
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	GLsizei stride = 14 * sizeof(GLfloat);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(5 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(8 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(11 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(4);
 
-	// Unbind the VAO
-	glBindVertexArray(0);
 }
 
 void MeshRenderer::createCube()
