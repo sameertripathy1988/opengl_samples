@@ -40,10 +40,18 @@ void main()
 
     // Specular intensity using Blinn-Phong model
     float specular_intensity = pow(max(dot(normal_tangentSpace, half_dir), 0.0), 32.0);
-    vec3 specular_color = specular_intensity * vec3(1);
+    
+    // Sum of diffuse and specular components
+    float total_intensity = diffuse_intensity + specular_intensity;
 
+    // Normalize if total_intensity > 1
+    if (total_intensity > 1.0) {
+        diffuse_intensity /= total_intensity;
+        specular_intensity /= total_intensity;
+    }
+    vec3 specular_color = specular_intensity * vec3(1);
     // Combine diffuse and specular components (here, only diffuse is being used)
-    vec3 final_color = diffuse_intensity * tex_color + specular_color;
+    vec3 final_color = (diffuse_intensity * tex_color) + specular_color;
     if(enable_normal_map == 0)
     {
         vec3 light_dir = normalize(light_pos-frag_pos.xyz);
