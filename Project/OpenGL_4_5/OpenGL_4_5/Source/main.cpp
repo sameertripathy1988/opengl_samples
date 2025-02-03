@@ -16,11 +16,12 @@
 #include "DiffuseLightingTest.h"
 #include "SpecularLightingTest.h"
 #include "PhongLighting.h"
+#include "ShadowMapping.h"
 
 using namespace std;
 
 #define CURRENT_TEST 12
-#define MAX_TESTS 13
+#define MAX_TESTS 14
 
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 768
@@ -69,6 +70,7 @@ int main(int argc, char **argv)
 	tests[10] = new DiffuseLightingTest();
 	tests[11] = new SpecularLightingTest();
 	tests[12] = new PhongLighting();
+	tests[13] = new ShadowMapping();
 
 	currentTest = tests[nCurrentTest];
 
@@ -159,6 +161,18 @@ void clearCurrentTest()
 	currentTest->clear();
 }
 
+void clearAll()
+{
+	for (int i = 0; i < MAX_TESTS; i++)
+	{
+		tests[i]->clear();
+		delete tests[i];
+		tests[i] = nullptr;
+	}
+	delete[] tests;
+	tests = nullptr;
+}
+
 void switchTest()
 {
 	clearCurrentTest();
@@ -189,6 +203,7 @@ void keyboardUp(unsigned char key, int x, int y)
 		switchTest();
 		break;
 	case 27:
+		clearAll();
 		exit(0);
 		break;
 	

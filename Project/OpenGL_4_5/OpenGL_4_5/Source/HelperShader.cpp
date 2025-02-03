@@ -9,7 +9,9 @@ HelperShader::HelperShader()
 
 HelperShader::~HelperShader()
 {
-
+	if (program != 0) {
+		glDeleteProgram(program);
+	}
 }
 std::string HelperShader::loadFile(const char *fname)
 {
@@ -23,7 +25,7 @@ std::string HelperShader::loadFile(const char *fname)
 	std::stringstream fileData;
 	fileData << file.rdbuf();
 	file.close();
-
+	
 	return fileData.str();
 }
 int HelperShader::createProgram(const char* vertexShaderFile, const char* fragShaderFile, const char* geomShaderFile, const char* tesControlShaderFile,

@@ -1,8 +1,4 @@
-#include "PhongLighting.h"
-#include <Util.h>
-#include <glm/glm/gtc/type_ptr.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp> 
-#include "glm\glm\glm.hpp"
+#include "ShadowMapping.h"
 
 #define PLANE_POSITION glm::vec3(0, -2, -3)
 #define PLANE_SCALE glm::vec3(1.5f, 1.0f, 1.5f)
@@ -16,18 +12,17 @@
 #define CAMERA_POSITION glm::vec3(0, 0, 0)
 #define CAMERA_TARGET PLANE_POSITION
 
-float rot = 0.0f;
-PhongLighting::PhongLighting() : isDirty(false), enableCameraMovement(false), enableLightMovement(false), 
+ShadowMapping::ShadowMapping() : isDirty(false), enableCameraMovement(false), enableLightMovement(false),
 light_pos(glm::vec3(0, 2, -5)), eye_pos(glm::vec3(0, 2, 0))
 {
-	name = "OpenGL 4.5 Phong Lighting Test";
+	name = "OpenGL 4.5 Shadow Mapping Test";
 }
 
-PhongLighting::~PhongLighting()
+ShadowMapping::~ShadowMapping()
 {
 }
 
-void PhongLighting::InitScene()
+void ShadowMapping::InitScene()
 {
 	//Camera
 	//-----------------------------------------------------------------------------------------
@@ -38,7 +33,7 @@ void PhongLighting::InitScene()
 
 	mainCamera->refreshViewMatrix();
 	//-----------------------------------------------------------------------------------------
-	
+
 	//Cube Mesh
 	//-----------------------------------------------------------------------------------------
 	cubeMesh = make_unique<MeshRenderer>();
@@ -65,7 +60,7 @@ void PhongLighting::InitScene()
 
 	phongMaterial->unbind();
 	//-----------------------------------------------------------------------------------------
-	
+
 	//Plane Mesh
 	//-----------------------------------------------------------------------------------------
 	planeMesh = make_unique<MeshRenderer>();
@@ -110,36 +105,34 @@ void PhongLighting::InitScene()
 	lampMaterial->bind();
 
 	lampMesh->setMaterial(lampMaterial);
-	
+
 	lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
 	lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
 	lampMaterial->linkMatrixToShader("M", &lampMesh->getModelMatrix()[0][0]);
 	lampMaterial->linkVec3ToShader("flat_color", 1.0f, 1.0f, 1.0f);
-	
+
 	//-----------------------------------------------------------------------------------------
 }
 
-void PhongLighting::RenderScene()
+void ShadowMapping::RenderScene()
 {
 	glClearColor(0.25, 0.25, 0.25, 1.0); // clear white
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render Lamp Mesh
-	
+
 	lampMesh->render();
-	
+
 	//// Render Plane Mesh
-	
+
 	planeMesh->render();
-	
+
 	// Render Cube Mesh
-	
+
 	cubeMesh->render();
-	
-	
 }
 
-void PhongLighting::UpdateScene()
+void ShadowMapping::UpdateScene()
 {
 	if (isDirty)
 	{
@@ -158,27 +151,12 @@ void PhongLighting::UpdateScene()
 		planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
 
 		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-		
+
 		isDirty = false;
 	}
 }
 
-void PhongLighting::UpdateInput(char x, int y, int z)
-{
-	switch (x)
-	{
-	case GLUT_KEY_DOWN://Q //Decrease the ambient Light
-		
-		break;
-	case GLUT_KEY_UP://W //Increase the ambient Light
-		
-		break;
-	default:
-		break;
-	}
-}
-
-void PhongLighting::UpdateButtonUp(char x)
+void ShadowMapping::UpdateButtonUp(char x)
 {
 	switch (x)
 	{
@@ -200,18 +178,15 @@ void PhongLighting::UpdateButtonUp(char x)
 	}
 }
 
-void PhongLighting::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
+void ShadowMapping::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 {
 	if (enableCameraMovement)
 	{
 		mainCamera->setOffsetPosition(glm::vec3(0, dy * 0.2f, 0));
 		mainCamera->refreshViewMatrix();
-		/*rot += dx * 0.2f;
-		planeMesh->setRotation(glm::vec3(rot, 0, 0));*/
-		//planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
 	}
 
-	if(enableLightMovement)
+	if (enableLightMovement)
 	{
 		lampMesh->setTranslation(lampMesh->getTranslation() + glm::vec3(dx * 0.2f, -dy * 0.2f, 0));
 		light_pos = lampMesh->getTranslation();
@@ -219,7 +194,7 @@ void PhongLighting::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 	isDirty = true;
 }
 
-void PhongLighting::printDebugInfo()
+void ShadowMapping::printDebugInfo()
 {
 	cout << "Main Camera " << endl
 		<< mainCamera->getPosition().x << endl
@@ -231,11 +206,3 @@ void PhongLighting::printDebugInfo()
 		<< lampMesh->getTranslation().y << endl
 		<< lampMesh->getTranslation().z << endl;
 }
-
-void PhongLighting::clear()
-{
-	BlankTest::clear();
-	delete mainCamera;
-	mainCamera = nullptr;
-}
-

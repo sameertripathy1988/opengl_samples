@@ -1,19 +1,20 @@
 #include "ModelLoadingTest.h"
-#include "ThirdParty\SOIL.h"
-#include "ThirdParty\tiny_obj_loader.h"
+
 
 static float angle = 0.0f;
 
 ModelLoadingTest::ModelLoadingTest()
 {
 	name = "OpenGL 4.5 Model Loading Test";
+	rotMatrix = new MyMatrix();
 }
 
 ModelLoadingTest::~ModelLoadingTest()
 {
+	delete rotMatrix;
+	delete texShader;
 }
-std::vector<tinyobj::shape_t> shapes;
-std::vector<tinyobj::material_t> materials;
+
 GLuint uvBuffer;
 
 void ModelLoadingTest::InitScene()
@@ -154,7 +155,7 @@ void ModelLoadingTest::UpdateScene()
 {
 	
 }
-MyMatrix *rotMatrix = new MyMatrix();
+
 
 void ModelLoadingTest::RenderScene()
 {

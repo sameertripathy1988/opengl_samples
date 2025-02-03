@@ -10,6 +10,8 @@ GeometryShaderModelExplodingTest::GeometryShaderModelExplodingTest()
 
 GeometryShaderModelExplodingTest::~GeometryShaderModelExplodingTest()
 {
+	shapes.clear();
+	materials.clear();
 }
 
 void GeometryShaderModelExplodingTest::InitScene()

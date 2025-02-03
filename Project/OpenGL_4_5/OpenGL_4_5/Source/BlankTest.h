@@ -9,7 +9,7 @@ class BlankTest
 {
 public:
 	BlankTest(){}
-	~BlankTest(){}
+	virtual ~BlankTest() {};
 	const char* name = "Blank Test";
 	virtual void InitScene() = 0;
 	virtual void RenderScene() = 0;

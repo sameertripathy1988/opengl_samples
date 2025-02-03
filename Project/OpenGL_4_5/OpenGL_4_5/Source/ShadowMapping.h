@@ -4,29 +4,23 @@
 #include "MeshRenderer.h"
 #include "Material.h"
 
-class PhongLighting : public BlankTest
+class ShadowMapping : public BlankTest
 {
 public:
-	PhongLighting();
-	~PhongLighting();
+	ShadowMapping();
+	~ShadowMapping();
 
 	void InitScene();
 	void RenderScene();
 	void UpdateScene();
-	void UpdateInput(char x, int y, int z);
 	void UpdateButtonUp(char x);
 	void UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown);
 	void printDebugInfo();
-	void clear();
-	
+
+private:
 	shared_ptr<HelperShader> phongShader;
 	unique_ptr<MeshRenderer> cubeMesh;
 	shared_ptr<Material> phongMaterial;
-
-	glm::vec3 eye_pos;
-	glm::vec3 light_pos;
-	MyCamera* mainCamera;
-	glm::vec3 target_pos;
 
 	//Lamp Mesh
 	shared_ptr<HelperShader> lampShader;
@@ -37,10 +31,13 @@ public:
 	unique_ptr<MeshRenderer> planeMesh;
 	shared_ptr<Material> planeMaterial;
 
+	bool isDirty;
 	//Input
 	bool enableCameraMovement;
 	bool enableLightMovement;
 
-	bool isDirty;
+	glm::vec3 eye_pos;
+	glm::vec3 light_pos;
+	MyCamera* mainCamera;
+	glm::vec3 target_pos;
 };
-
