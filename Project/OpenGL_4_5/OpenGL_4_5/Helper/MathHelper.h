@@ -153,22 +153,22 @@ struct Quaternion
 			pMatrix->arr[0][3] = 0.0f;
 
 			// Second row
-			pMatrix->arr[1][4] = 2.0f * (q[1] * q[2] + q[0] * q[3]);
-			pMatrix->arr[1][5] = 1.0f - 2.0f * (q[1] * q[1] + q[3] * q[3]);
-			pMatrix->arr[1][6] = 2.0f * (q[2] * q[3] - q[0] * q[1]);
-			pMatrix->arr[1][7] = 0.0f;
+			pMatrix->arr[1][0] = 2.0f * (q[1] * q[2] + q[0] * q[3]);
+			pMatrix->arr[1][1] = 1.0f - 2.0f * (q[1] * q[1] + q[3] * q[3]);
+			pMatrix->arr[1][2] = 2.0f * (q[2] * q[3] - q[0] * q[1]);
+			pMatrix->arr[1][3] = 0.0f;
 
 			// Third row
-			pMatrix->arr[2][8] = 2.0f * (q[1] * q[3] - q[0] * q[2]);
-			pMatrix->arr[2][9] = 2.0f * (q[2] * q[3] + q[0] * q[1]);
-			pMatrix->arr[2][10] = 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]);
-			pMatrix->arr[2][11] = 0.0f;
+			pMatrix->arr[2][0] = 2.0f * (q[1] * q[3] - q[0] * q[2]);
+			pMatrix->arr[2][1] = 2.0f * (q[2] * q[3] + q[0] * q[1]);
+			pMatrix->arr[2][2] = 1.0f - 2.0f * (q[1] * q[1] + q[2] * q[2]);
+			pMatrix->arr[2][3] = 0.0f;
 
 			// Fourth row
-			pMatrix->arr[3][12] = 0;
-			pMatrix->arr[3][13] = 0;
-			pMatrix->arr[3][14] = 0;
-			pMatrix->arr[3][15] = 1.0f;
+			pMatrix->arr[3][0] = 0;
+			pMatrix->arr[3][1] = 0;
+			pMatrix->arr[3][2] = 0;
+			pMatrix->arr[3][3] = 1.0f;
 		}
 	}
 

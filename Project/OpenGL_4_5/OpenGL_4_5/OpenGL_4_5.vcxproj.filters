@@ -90,6 +90,9 @@
     <ClCompile Include="Source\SceneNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ShadowMapping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\HelperShader.h">
@@ -168,6 +171,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneNode.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ShadowMapping.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
