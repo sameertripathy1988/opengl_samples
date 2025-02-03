@@ -9,3 +9,5 @@
 Project/OpenGL_4_5/.vs/
 Project/OpenGL_4_5/OpenGL_4_5/x64/Debug/
 Project/OpenGL_4_5/x64/Debug/
+/Project/OpenGL_4_5/OpenGL_4_5/x64
+*.tlog
