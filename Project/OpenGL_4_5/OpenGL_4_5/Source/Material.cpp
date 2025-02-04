@@ -26,34 +26,45 @@ Material::~Material()
 	}
 }
 
-void Material::bind()
+void Material::bind(shared_ptr<HelperShader> explicitShader, float useDefaultShader)
 {
-	if (shader)
+	shared_ptr<HelperShader> currentShader;
+
+	if (useDefaultShader)
 	{
-		glUseProgram(shader->getProgramID());
+		currentShader = shader;
+	}
+	else
+	{
+		currentShader = explicitShader;
+	}
+
+	if (currentShader)
+	{
+		glUseProgram(currentShader->getProgramID());
 		if (diffuse_map)
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, diffuse_map);
-			glUniform1i(glGetUniformLocation(shader->getProgramID(), "diffuse_map"), 0);
+			glUniform1i(glGetUniformLocation(currentShader->getProgramID(), "diffuse_map"), 0);
 		}
 		if (normal_map)
 		{
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, normal_map);
-			glUniform1i(glGetUniformLocation(shader->getProgramID(), "normal_map"), 1);
+			glUniform1i(glGetUniformLocation(currentShader->getProgramID(), "normal_map"), 1);
 		}
 		if (depth_map)
 		{
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, depth_map);
-			glUniform1i(glGetUniformLocation(shader->getProgramID(), "depth_map"), 2);
+			glUniform1i(glGetUniformLocation(currentShader->getProgramID(), "depth_map"), 2);
 		}
 		if (texture_extra)
 		{
 			glActiveTexture(GL_TEXTURE3);
 			glBindTexture(GL_TEXTURE_2D, texture_extra);
-			glUniform1i(glGetUniformLocation(shader->getProgramID(), "texture_extra"), 3);
+			glUniform1i(glGetUniformLocation(currentShader->getProgramID(), "texture_extra"), 3);
 		}
 	}
 }
@@ -117,21 +128,18 @@ void Material::setColor(const glm::vec4& flat_color_)
 	flat_color = flat_color_;
 }
 
-void Material::linkMatrixToShader(const char* matrix_name_shader, const GLfloat* value)
+void Material::linkMatrixToShader(const char* name, const GLfloat* value)
 {
-	glUseProgram(shader->getProgramID());
-	glUniformMatrix4fv(glGetUniformLocation(shader->getProgramID(), matrix_name_shader), 1, GL_FALSE, value);
+	shader->setMat4(name, value);
 }
 
-void Material::linkVec3ToShader(const char* vec3_name_shader, GLfloat x, GLfloat y, GLfloat z)
+void Material::linkVec3ToShader(const char* name, GLfloat x, GLfloat y, GLfloat z)
 {
-	glUseProgram(shader->getProgramID());
-	glUniform3f(glGetUniformLocation(shader->getProgramID(), vec3_name_shader), x, y, z);
+	shader->setVec3(name, x, y, z);
 }
 void Material::linkIntToShader(const std::string& name, int value)
 {
-	GLint location = glGetUniformLocation(shader->getProgramID(), name.c_str());
-	glUniform1i(location, value);
+	shader->setInt(name, value);
 }
 
 glm::vec4 Material::getColor()

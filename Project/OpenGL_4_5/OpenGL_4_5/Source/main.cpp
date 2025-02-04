@@ -20,7 +20,7 @@
 
 using namespace std;
 
-#define CURRENT_TEST 12
+#define CURRENT_TEST 13
 #define MAX_TESTS 14
 
 #define WINDOW_WIDTH 1024
@@ -75,12 +75,30 @@ int main(int argc, char **argv)
 	currentTest = tests[nCurrentTest];
 
 	glutInit(&argc, argv);
+	glutInitContextVersion(4, 0);  // Major = 4, Minor = 0
+	glutInitContextProfile(GLUT_CORE_PROFILE);  // Use core profile
+
+	// Optional: Enable forward compatibility (removes deprecated features)
+	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	//glutInitWindowPosition(1920/2, 1080/2);//optional
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT); //optional
 	glutCreateWindow(currentTest->name);
-	
+	// Initialize GLEW
+	glewExperimental = GL_TRUE;  // Important for core profile
+	GLenum err = glewInit();
+	if (err != GLEW_OK) {
+		std::cerr << "Error initializing GLEW: " << glewGetErrorString(err) << std::endl;
+		return -1;
+	}
+
+	// Check OpenGL version
+	std::cout << "OpenGL version supported: " << glGetString(GL_VERSION) << std::endl;
 	glutKeyboardUpFunc(keyboardUp);
+	glutKeyboardFunc([](unsigned char x, int y, int z)
+		{
+			currentTest->UpdateInput(x, y, z);
+		});
 	glutSpecialFunc(keyboardSpecialFunc);
 	
 	glutMouseWheelFunc(mouseWheelFunction);
@@ -185,14 +203,14 @@ void keyboardUp(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 's':
+	case GLUT_KEY_F1:
 		if (nCurrentTest != MAX_TESTS - 1)
 		{
 			nCurrentTest++;
 			switchTest();
 		}
 		break;
-	case 'a':
+	case GLUT_KEY_F2:
 		if (nCurrentTest != 0)
 		{
 			nCurrentTest--;
@@ -217,15 +235,7 @@ void keyboardUp(unsigned char key, int x, int y)
 //Continous press inputs if kept pressed
 void keyboardSpecialFunc(int key, int x, int y)
 {
-	switch (key)
-	{
-		case GLUT_KEY_F5:
-			switchTest();
-			break;
-		default:
-			currentTest->UpdateInput(key, x, y);
-			break;
-	}
+	
 }
 
 void mouseWheelFunction(int wheel, int direction, int x, int y)

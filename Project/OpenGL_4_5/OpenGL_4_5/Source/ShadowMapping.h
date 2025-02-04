@@ -15,21 +15,27 @@ public:
 	void UpdateScene();
 	void UpdateButtonUp(char x);
 	void UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown);
+	void UpdateInput(unsigned char x, int y, int z);
 	void printDebugInfo();
+
+	void initShadowMapping();
+	void renderDepthMap();
+
+	void RenderDefaultScene();
 
 private:
 	shared_ptr<HelperShader> phongShader;
 	unique_ptr<MeshRenderer> cubeMesh;
-	shared_ptr<Material> phongMaterial;
+	
 
 	//Lamp Mesh
 	shared_ptr<HelperShader> lampShader;
 	unique_ptr<MeshRenderer> lampMesh;
-	shared_ptr<Material>lampMaterial;
+	
 	//Plane
 	shared_ptr<HelperShader> planeShader;
 	unique_ptr<MeshRenderer> planeMesh;
-	shared_ptr<Material> planeMaterial;
+	
 
 	bool isDirty;
 	//Input
@@ -38,6 +44,19 @@ private:
 
 	glm::vec3 eye_pos;
 	glm::vec3 light_pos;
-	MyCamera* mainCamera;
+	unique_ptr<MyCamera> mainCamera;
 	glm::vec3 target_pos;
+
+	//Depth Map
+	GLuint depthMapFBO;
+	GLuint depthMap;
+	std::shared_ptr<HelperShader> depthShader;
+	
+	glm::mat4 lightSpaceMatrix;
+
+	int tex_crate_diffuse;
+	int tex_crate_normal;
+
+	int tex_brick_diffuse;
+	int tex_brick_normal;
 };

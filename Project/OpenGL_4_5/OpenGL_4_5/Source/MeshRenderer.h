@@ -15,6 +15,7 @@ public:
 	MeshRenderer();
 	~MeshRenderer();
 	void render();
+	void render(shared_ptr<HelperShader> shader); //Use explicit shader to render the objects
 	void create(const MESH_TYPE& meshType);
 	void setMaterial(const shared_ptr<Material>& material_);
 	shared_ptr<Material> getMaterial() { return material; }
@@ -29,7 +30,7 @@ public:
 
 	// Method to calculate the model matrix
 	glm::mat4 getModelMatrix() const;
-
+	
 private:
 	shared_ptr<Material> material;
 	MESH_TYPE meshType;
@@ -50,5 +51,7 @@ private:
 	void renderPlane();
 	void renderCube();
 	void renderModel();
+
+	
 };
 

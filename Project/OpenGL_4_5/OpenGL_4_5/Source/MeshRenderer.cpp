@@ -15,11 +15,6 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::render()
 {
-	if (material)
-	{
-		material->bind();
-		material->linkMatrixToShader("M", &getModelMatrix()[0][0]);
-	}
 	switch (meshType)
 	{
 	case PLANE:
@@ -34,8 +29,6 @@ void MeshRenderer::render()
 	default:
 		break;
 	}
-	if (material)
-		material->unbind();
 }
 
 void MeshRenderer::create(const MESH_TYPE& meshType_)
@@ -115,6 +108,20 @@ void MeshRenderer::createCube()
 
 void MeshRenderer::createModel()
 {
+	switch (meshType)
+	{
+		case PLANE:
+			createPlane();
+			break;
+		case CUBE:
+			createCube();
+			break;
+		case MODEL:
+			createModel();
+			break;
+		default:
+			break;
+	}
 }
 
 void MeshRenderer::renderPlane()
@@ -126,13 +133,37 @@ void MeshRenderer::renderPlane()
 
 void MeshRenderer::renderCube()
 {
-	glUseProgram(material->shader->getProgramID());
 	glBindVertexArray(model_vao);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void MeshRenderer::renderModel()
 {
+}
+void MeshRenderer::render(shared_ptr<HelperShader> shader)
+{
+	switch (meshType)
+	{
+	case PLANE:
+		{
+			shader->use();
+			glBindVertexArray(model_vao);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glBindVertexArray(0);
+		}
+		break;
+	case CUBE:
+		{
+			shader->use();
+			glBindVertexArray(model_vao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		break;
+	case MODEL:
+		break;
+	default:
+		break;
+	}
 }
 // Setters and getters for transformation variables
 void MeshRenderer::setTranslation(const glm::vec3& translation_)

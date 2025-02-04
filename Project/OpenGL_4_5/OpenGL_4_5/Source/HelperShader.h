@@ -17,6 +17,12 @@ public:
 	int createProgram(const char* vertexShaderFile, const char* fragShaderFile, const char* geomShaderFile = NULL, const char* tesControlShader = NULL,
 		const char* tesEvalutaionShader = NULL);
 
+    void use();
+    void setMat4(const std::string& name, const float* matrix);
+	void setVec3(const std::string& name, float x, float y, float z);
+	void setInt(const std::string& name, int value);
+	void setTexture(const std::string& name, int tex_id, int textureUnit);
+
 private:
 	int program;
 	std::string loadFile(const char *fname);

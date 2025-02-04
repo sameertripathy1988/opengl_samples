@@ -8,6 +8,7 @@ layout(location = 4) in vec3 aBitangent;
 out vec2 uv_fs;
 out vec3 normal_modelspace;
 out vec4 frag_pos;
+out vec4 frag_pos_lightspace;
 
 out vec3 tangentSpace_lightPos;
 out vec3 tangentSpace_viewPos;
@@ -17,6 +18,8 @@ uniform vec3 light_pos;
 uniform vec3 view_pos;
 
 uniform mat4 M,V,P;
+uniform mat4 lightSpaceMatrix;
+uniform int enableShadow;
 void main()
 {
     mat3 normal_matrix = mat3(transpose(inverse(mat3(M))));
@@ -37,5 +40,9 @@ void main()
     frag_pos = M * vPosition;
     tangentSpace_fragPos = invTBN * frag_pos.xyz;
     uv_fs = uvPos;
+    if(enableShadow == 1)
+    {
+        frag_pos_lightspace = lightSpaceMatrix * vec4(frag_pos.xyz, 1);
+    }
     gl_Position =  P * V * M * vec4(vPosition.xyz,1);
 }

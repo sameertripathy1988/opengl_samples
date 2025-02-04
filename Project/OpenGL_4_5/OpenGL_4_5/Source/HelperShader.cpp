@@ -137,3 +137,26 @@ int HelperShader::getProgramID()
 {
 	return program;
 }
+
+void HelperShader::use() {
+	glUseProgram(program);
+}
+
+void HelperShader::setMat4(const std::string& name, const float* matrix) {
+	glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE, matrix);
+}
+
+void HelperShader::setVec3(const std::string& name, float x, float y, float z) {
+	glUniform3f(glGetUniformLocation(program, name.c_str()), x, y, z);
+}
+
+void HelperShader::setInt(const std::string& name, int value) {
+	glUniform1i(glGetUniformLocation(program, name.c_str()), value);
+}
+
+void HelperShader::setTexture(const std::string& name, int tex_id, int textureUnit)
+{
+    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    glBindTexture(GL_TEXTURE_2D, tex_id);
+    glUniform1i(glGetUniformLocation(program, name.c_str()), textureUnit);
+}

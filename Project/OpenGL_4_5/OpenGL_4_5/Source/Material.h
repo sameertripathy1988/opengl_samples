@@ -16,7 +16,7 @@ class Material
 public:
 	Material();
 	~Material();
-	void bind();
+	void bind(shared_ptr<HelperShader> explicitShader = nullptr, float useDefaultShader = true);
 	void unbind();
 	
 	void setShader(const shared_ptr<HelperShader>& shader_);
@@ -25,8 +25,8 @@ public:
 
 	void setColor(const glm::vec4& flat_color_);
 	
-	void linkMatrixToShader(const char* matrix_name_shader, const GLfloat* value);
-	void linkVec3ToShader(const char* vec3_name_shader, GLfloat x, GLfloat y, GLfloat z);
+	void linkMatrixToShader(const char* name, const GLfloat* value);
+	void linkVec3ToShader(const char* name, GLfloat x, GLfloat y, GLfloat z);
 	void linkIntToShader(const std::string& name, int value);
 	glm::vec4 getColor();
 

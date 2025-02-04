@@ -1,12 +1,13 @@
 #include "ShadowMapping.h"
+#include "Util.h"
 
-#define PLANE_POSITION glm::vec3(0, -2, -3)
-#define PLANE_SCALE glm::vec3(1.5f, 1.0f, 1.5f)
+#define PLANE_POSITION glm::vec3(0, -2, -6)
+#define PLANE_SCALE glm::vec3(2.5f, 1.0f, 2.5f)
 
-#define CUBE_POSITION glm::vec3(0, -1.74f, -3)
-#define CUBE_SCALE glm::vec3(0.25f, 0.25f, 0.25f)
+#define CUBE_POSITION glm::vec3(0, -1.99f, -6)
+#define CUBE_SCALE glm::vec3(0.25f, 0.5f, 0.25f)
 
-#define LIGHT_POSITION glm::vec3(0, -1.2, -3)
+#define LIGHT_POSITION glm::vec3(0.3, 0.9, -9)
 #define LIGHT_SCALE glm::vec3(0.05f, 0.05f, 0.05f)
 
 #define CAMERA_POSITION glm::vec3(0, 0, 0)
@@ -24,9 +25,17 @@ ShadowMapping::~ShadowMapping()
 
 void ShadowMapping::InitScene()
 {
+	tex_crate_diffuse = Util::loadTexture("crate.png");
+	tex_crate_normal = Util::loadTexture("crate_normal.png");
+
+	tex_brick_diffuse = Util::loadTexture("Textures/brickwall.jpg");
+	tex_brick_normal = Util::loadTexture("Textures/brickwall_normal.jpg");
+
+	initShadowMapping();
+
 	//Camera
 	//-----------------------------------------------------------------------------------------
-	mainCamera = new MyCamera();
+	mainCamera = make_unique<MyCamera>();
 	mainCamera->setPosition(CAMERA_POSITION);
 	target_pos = glm::vec3(0, 0, -5);
 	mainCamera->setLookAt(CAMERA_TARGET); //Cube Position
@@ -44,21 +53,6 @@ void ShadowMapping::InitScene()
 	phongShader = make_shared<HelperShader>();
 	phongShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
 
-	phongMaterial = make_shared<Material>();
-	phongMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "crate.png");
-	phongMaterial->setTextureInfo(TEXTURE_TYPE::NORMAL, "crate_normal.png");
-	phongMaterial->setShader(phongShader);
-
-	cubeMesh->setMaterial(phongMaterial);
-
-	phongMaterial->bind();
-	phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	phongMaterial->linkMatrixToShader("M", &cubeMesh->getModelMatrix()[0][0]);
-	phongMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
-	phongMaterial->linkIntToShader("enable_normal_map", 0);
-
-	phongMaterial->unbind();
 	//-----------------------------------------------------------------------------------------
 
 	//Plane Mesh
@@ -67,27 +61,7 @@ void ShadowMapping::InitScene()
 	planeMesh->create(PLANE);
 	planeMesh->setTranslation(PLANE_POSITION);
 	planeMesh->setScale(PLANE_SCALE);
-
-	planeShader = make_shared<HelperShader>();
-	planeShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
-
-	planeMaterial = make_shared<Material>();
-	planeMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "Textures/brickwall.jpg");
-	planeMaterial->setTextureInfo(TEXTURE_TYPE::NORMAL, "Textures/brickwall_normal.jpg");
-	planeMaterial->setShader(planeShader);
-	planeMaterial->bind();
-
-	planeMesh->setMaterial(planeMaterial);
-
-	planeMaterial->bind();
-	planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
-	planeMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
-	planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
-	planeMaterial->linkIntToShader("enable_normal_map", 1);
-	planeMaterial->unbind();
-
+	
 	//-----------------------------------------------------------------------------------------
 
 	//Lamp Cube Mesh
@@ -100,36 +74,23 @@ void ShadowMapping::InitScene()
 	lampShader = make_shared<HelperShader>();
 	lampShader->createProgram("MVP_LampFlatColor.vsh", "MVP_LampFlatColor.fsh");
 
-	lampMaterial = make_shared<Material>();
-	lampMaterial->setShader(lampShader);
-	lampMaterial->bind();
-
-	lampMesh->setMaterial(lampMaterial);
-
-	lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	lampMaterial->linkMatrixToShader("M", &lampMesh->getModelMatrix()[0][0]);
-	lampMaterial->linkVec3ToShader("flat_color", 1.0f, 1.0f, 1.0f);
-
 	//-----------------------------------------------------------------------------------------
 }
 
 void ShadowMapping::RenderScene()
 {
-	glClearColor(0.25, 0.25, 0.25, 1.0); // clear white
+	glEnable(GL_DEPTH_TEST);
+	//glDisable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	//Render depth map in 1st Pass
+	renderDepthMap();
+	glCullFace(GL_BACK);
+	//Fetch the depth map and Render the scene in 2nd Pass
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glClearColor(0.5, 0.5, 0.5, 1.0); // clear white
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Render Lamp Mesh
-
-	lampMesh->render();
-
-	//// Render Plane Mesh
-
-	planeMesh->render();
-
-	// Render Cube Mesh
-
-	cubeMesh->render();
+	RenderDefaultScene();
 }
 
 void ShadowMapping::UpdateScene()
@@ -137,21 +98,6 @@ void ShadowMapping::UpdateScene()
 	if (isDirty)
 	{
 		mainCamera->refreshViewMatrix();
-		lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-		lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-
-		phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-		phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-		phongMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
-
-		planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-		planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-		planeMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-		planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
-
-		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-
 		isDirty = false;
 	}
 }
@@ -160,7 +106,7 @@ void ShadowMapping::UpdateButtonUp(char x)
 {
 	switch (x)
 	{
-	case 'c':
+	case 'm':
 		enableCameraMovement = !enableCameraMovement;
 		break;
 	case 'l':
@@ -170,7 +116,7 @@ void ShadowMapping::UpdateButtonUp(char x)
 		enableLightMovement = false;
 		enableCameraMovement = false;
 		break;
-	case 'd':
+	case 'u':
 		printDebugInfo();
 		break;
 	default:
@@ -182,8 +128,8 @@ void ShadowMapping::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 {
 	if (enableCameraMovement)
 	{
-		mainCamera->setOffsetPosition(glm::vec3(0, dy * 0.2f, 0));
-		mainCamera->refreshViewMatrix();
+		if(bIsMouseLBDown)
+			mainCamera->processMouseMovement(dx, -dy);
 	}
 
 	if (enableLightMovement)
@@ -192,6 +138,38 @@ void ShadowMapping::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 		light_pos = lampMesh->getTranslation();
 	}
 	isDirty = true;
+}
+
+void ShadowMapping::UpdateInput(unsigned char x, int y, int z)
+{
+	
+	if (enableCameraMovement)
+	{
+		glm::vec3 direction(0.0f);
+		switch (x) {
+		case 'w':
+			direction.z = 1.0f;
+			break;
+		case 's':
+			direction.z = -1.0f;
+			break;
+		case 'a':
+			direction.x = -1.0f;
+			break;
+		case 'd':
+			direction.x = 1.0f;
+			break;
+		case 'q':
+			direction.y = 1.0f;
+			break;
+		case 'e':
+			direction.y = -1.0f;
+			break;
+		default:
+			break;
+		}
+		mainCamera->processKeyboardMovement(direction, 0.016f);
+	}
 }
 
 void ShadowMapping::printDebugInfo()
@@ -205,4 +183,104 @@ void ShadowMapping::printDebugInfo()
 		<< lampMesh->getTranslation().x << endl
 		<< lampMesh->getTranslation().y << endl
 		<< lampMesh->getTranslation().z << endl;
+}
+
+void ShadowMapping::initShadowMapping()
+{
+	//Create FBO for Depth Map
+	glGenFramebuffers(1, &depthMapFBO);
+
+	//Create Depth Map Texture
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, 2048, 2048, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	//Attach Depth Map to FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//Create Depth Shader
+	depthShader = make_shared<HelperShader>();
+	depthShader->createProgram("DepthMap.vsh", "DepthMap.fsh");	
+}
+
+void ShadowMapping::renderDepthMap()
+{
+	glm::mat4 lightProjection, lightView;
+	float near_plane = 0.5f, far_plane = 15.0f;
+	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	lightView = glm::lookAt(light_pos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	lightSpaceMatrix = lightProjection * lightView;
+
+	//Render scene to depth map
+	glViewport(0, 0, 2048, 2048);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(2.5f, 4.0f);
+
+	depthShader->use();
+	depthShader->setMat4("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
+	depthShader->setMat4("M", &cubeMesh->getModelMatrix()[0][0]);
+	cubeMesh->render();
+	depthShader->setMat4("M", &planeMesh->getModelMatrix()[0][0]);
+	planeMesh->render();
+
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void ShadowMapping::RenderDefaultScene()
+{
+
+	lampShader->use();
+	lampShader->setMat4("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	lampShader->setMat4("V", &(mainCamera->getViewMatrix()[0][0]));
+	lampShader->setMat4("M", &lampMesh->getModelMatrix()[0][0]);
+	lampShader->setVec3("flat_color", 1.0f, 1.0f, 1.0f);
+	lampMesh->render();
+
+	//Render Plane Mesh
+	phongShader->use();
+	
+	phongShader->setTexture("diffuse_map", tex_brick_diffuse, 0);
+	phongShader->setTexture("normal_map", tex_brick_normal, 1);
+	phongShader->setTexture("shadow_map", depthMap, 2);
+
+	phongShader->setMat4("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	phongShader->setMat4("V", &(mainCamera->getViewMatrix()[0][0]));
+	phongShader->setMat4("M", &planeMesh->getModelMatrix()[0][0]);
+	phongShader->setMat4("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
+	phongShader->setVec3("light_pos", light_pos.x, light_pos.y, light_pos.z);
+	phongShader->setVec3("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
+	phongShader->setInt("enable_normal_map", 1);
+	phongShader->setInt("enableShadow", 1);
+	planeMesh->render();
+
+	//Render Cube Mesh
+	phongShader->use();
+	phongShader->setTexture("diffuse_map", tex_crate_diffuse, 0);
+	phongShader->setTexture("normal_map", tex_crate_normal, 1);
+	phongShader->setTexture("shadow_map", depthMap, 2);
+
+	phongShader->setMat4("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	phongShader->setMat4("V", &(mainCamera->getViewMatrix()[0][0]));
+	phongShader->setMat4("M", &cubeMesh->getModelMatrix()[0][0]);
+	phongShader->setMat4("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
+	phongShader->setVec3("light_pos", light_pos.x, light_pos.y, light_pos.z);
+	phongShader->setVec3("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
+	phongShader->setInt("enable_normal_map", 0);
+	phongShader->setInt("enableShadow", 1);
+
+	cubeMesh->render();
 }
