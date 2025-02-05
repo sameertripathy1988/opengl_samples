@@ -8,7 +8,7 @@ class Util
 public:
 	Util();
 	~Util();
-	 static int loadTexture(const char* path);
+	 static int loadTexture(const std::string& path);
 private:
 
 };

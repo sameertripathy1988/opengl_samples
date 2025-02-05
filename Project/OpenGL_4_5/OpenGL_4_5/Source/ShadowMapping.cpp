@@ -4,8 +4,8 @@
 #define PLANE_POSITION glm::vec3(0, -2, -6)
 #define PLANE_SCALE glm::vec3(2.5f, 1.0f, 2.5f)
 
-#define CUBE_POSITION glm::vec3(0, -1.99f, -6)
-#define CUBE_SCALE glm::vec3(0.25f, 0.5f, 0.25f)
+#define CUBE_POSITION glm::vec3(0, -1.75f, -6)
+#define CUBE_SCALE glm::vec3(0.25f, 0.25f, 0.25f)
 
 #define LIGHT_POSITION glm::vec3(0.3, 0.9, -9)
 #define LIGHT_SCALE glm::vec3(0.05f, 0.05f, 0.05f)
@@ -21,11 +21,27 @@ light_pos(glm::vec3(0, 2, -5)), eye_pos(glm::vec3(0, 2, 0))
 
 ShadowMapping::~ShadowMapping()
 {
+	if (tex_crate_diffuse)
+	{
+		glDeleteTextures(1, &tex_crate_diffuse);
+	}
+	if (tex_crate_normal)
+	{
+		glDeleteTextures(1, &tex_crate_normal);
+	}
+	if (tex_brick_diffuse)
+	{
+		glDeleteTextures(1, &tex_brick_diffuse);
+	}
+	if (tex_brick_normal)
+	{
+		glDeleteTextures(1, &tex_brick_normal);
+	}
 }
 
 void ShadowMapping::InitScene()
 {
-	tex_crate_diffuse = Util::loadTexture("crate.png");
+	tex_crate_diffuse = Util::loadTexture("metal.jpg");
 	tex_crate_normal = Util::loadTexture("crate_normal.png");
 
 	tex_brick_diffuse = Util::loadTexture("Textures/brickwall.jpg");

@@ -190,36 +190,21 @@ void clearAll()
 	delete[] tests;
 	tests = nullptr;
 }
-
+bool canSwitch = true;
 void switchTest()
 {
+	canSwitch = false;
 	clearCurrentTest();
 	currentTest = tests[nCurrentTest];
 	currentTest->InitScene();
 	glutSetWindowTitle(currentTest->name);
+	canSwitch = true;
 }
 //Only once when key is released
 void keyboardUp(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case GLUT_KEY_F1:
-		if (nCurrentTest != MAX_TESTS - 1)
-		{
-			nCurrentTest++;
-			switchTest();
-		}
-		break;
-	case GLUT_KEY_F2:
-		if (nCurrentTest != 0)
-		{
-			nCurrentTest--;
-			switchTest();
-		}
-		break;
-	case GLUT_KEY_F5:
-		switchTest();
-		break;
 	case 27:
 		clearAll();
 		exit(0);
@@ -235,7 +220,27 @@ void keyboardUp(unsigned char key, int x, int y)
 //Continous press inputs if kept pressed
 void keyboardSpecialFunc(int key, int x, int y)
 {
-	
+	if (!canSwitch) return;
+	switch (key)
+	{
+		case GLUT_KEY_F1:
+			nCurrentTest--;
+			if (nCurrentTest == -1) nCurrentTest = MAX_TESTS - 1;
+			std::cout << "F1" << nCurrentTest << std::endl;
+			switchTest();
+			break;
+		case GLUT_KEY_F2:
+			nCurrentTest++;
+			if (nCurrentTest == MAX_TESTS ) nCurrentTest = 0;
+			std::cout << "F2" << nCurrentTest << std::endl;
+			switchTest();
+			break;
+		case GLUT_KEY_F5:
+			switchTest();
+			break;
+		default:
+			break;
+	}
 }
 
 void mouseWheelFunction(int wheel, int direction, int x, int y)

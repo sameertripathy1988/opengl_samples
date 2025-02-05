@@ -16,7 +16,8 @@ public:
 	GLuint indices[6];
 	GLuint vbo;
 	GLuint vao;
-	HelperShader* texShader;
+	unique_ptr<HelperShader> texShader;
+	GLuint texture;
 };
 
 #endif 

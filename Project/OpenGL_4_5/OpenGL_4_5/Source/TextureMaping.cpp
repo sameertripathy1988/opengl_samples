@@ -3,6 +3,7 @@
 #include "ThirdParty\SOIL.h"
 
 #include "Util.h"
+#include "TextureManager.h"
 
 TextureMaping::TextureMaping()
 {
@@ -10,6 +11,7 @@ TextureMaping::TextureMaping()
 }
 TextureMaping::~TextureMaping()
 {
+	TextureManager::getInstance().clearTextures();
 }
 
 void TextureMaping::InitScene()
@@ -70,12 +72,12 @@ void TextureMaping::InitScene()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	GLuint tex_id = Util::loadTexture("Texture.png");
+	texture = TextureManager::getInstance().loadTexture("Texture.png");
 
 	glUseProgram(texShader->getProgramID());
 
-	GLint texLoc = glGetUniformLocation(texShader->getProgramID(), "basic_texture");
-	glUniform1i(texLoc, 0);
+	texShader->setTexture("diffuse_map", texture, 0);
+
 }
 void TextureMaping::RenderScene()
 {

@@ -9,13 +9,13 @@ Util::~Util()
 {
 }
 
-int Util::loadTexture(const char* path)
+int Util::loadTexture(const std::string &path)
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
-    unsigned char* data = SOIL_load_image(path, &width, &height, &nrComponents, 0);
+    unsigned char* data = SOIL_load_image(path.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
         GLenum format;

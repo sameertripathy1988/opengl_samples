@@ -1,6 +1,8 @@
 #include "MVPTest.h"
 #include "ThirdParty\SOIL.h"
 #include <Util.h>
+#include "TextureManager.h"
+
 static float angle = 0;
 static Vector camPos(0.0f, 2.0f, 5.0f);
 
@@ -11,6 +13,7 @@ MVPTest::MVPTest()
 
 MVPTest::~MVPTest()
 {
+	TextureManager::getInstance().clearTextures();
 }
 
 void MVPTest::InitScene()
@@ -47,7 +50,7 @@ void MVPTest::InitScene()
 	};
 
 
-	texShader = new HelperShader();
+	texShader = make_unique<HelperShader>();
 	texShader->createProgram("MVP_Texture.vsh", "MVP_Texture.fsh");
 
 
@@ -70,12 +73,11 @@ void MVPTest::InitScene()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	GLuint tex_id = Util::loadTexture("Texture.png");
+	texture = TextureManager::getInstance().loadTexture("Texture.png");
 
 	glUseProgram(texShader->getProgramID());
 	
-	GLint texLoc = glGetUniformLocation(texShader->getProgramID(), "basic_texture");
-	glUniform1i(texLoc, 0);
+	texShader->setTexture("diffuse_map", texture, 0);
 }
 
 void MVPTest :: UpdateScene()

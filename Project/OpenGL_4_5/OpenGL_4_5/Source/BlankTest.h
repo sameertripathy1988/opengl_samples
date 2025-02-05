@@ -20,9 +20,7 @@ public:
 	virtual void UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown) {};
 	virtual void UpdateButtonUp(char x) {};
 	virtual void clear() 
-	{
-		std::cout << "Clearing test name: " << name << std::endl;
-	};
+	{};
 };
 
 #endif

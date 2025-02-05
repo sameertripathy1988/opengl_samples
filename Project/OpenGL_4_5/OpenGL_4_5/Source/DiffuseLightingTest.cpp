@@ -5,6 +5,7 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
 #include <Util.h>
+#include "TextureManager.h"
 
 using namespace tdogl;
 
@@ -28,7 +29,7 @@ DiffuseLightingTest::DiffuseLightingTest()
 
 DiffuseLightingTest::~DiffuseLightingTest()
 {
-
+	TextureManager::getInstance().clearTextures();
 }
 
 void DiffuseLightingTest::InitScene()
@@ -84,7 +85,7 @@ void DiffuseLightingTest::InitScene()
 		1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   1.0f, 0.0f, 0.0f
 	};
 
-	diffuseShader = new HelperShader();
+	diffuseShader = make_shared<HelperShader>();
 	diffuseShader->createProgram("DiffuseLighting.vsh", "DiffuseLighting.fsh");
 
 	//VBO created in memory
@@ -107,15 +108,14 @@ void DiffuseLightingTest::InitScene()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(GLfloat), (const GLvoid*)(5 * sizeof(GLfloat)));
 
-	GLuint tex_id = Util::loadTexture("crate.png");
+	texture = TextureManager::getInstance().loadTexture("crate.png");
 
 	glUseProgram(diffuseShader->getProgramID());
 
-	GLint texLoc = glGetUniformLocation(diffuseShader->getProgramID(), "basic_texture");
-	glUniform1i(texLoc, 0);
+	diffuseShader->setTexture("basic_texture", texture, 0);
 
 
-	lampShader = new HelperShader();
+	lampShader = make_shared<HelperShader>();
 	lampShader->createProgram("MVP_LampFlatColor.vsh", "MVP_LampFlatColor.fsh");
 	glUseProgram(lampShader->getProgramID());
 
@@ -130,7 +130,7 @@ void DiffuseLightingTest::InitScene()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
 	glBindVertexArray(0);
 
-	mainCamera = new MyCamera();
+	mainCamera = make_unique<MyCamera>();
 	mainCamera->setPosition(eye_pos);
 	glm::vec3 target_pos = glm::vec3(0, 0, -10);
 	mainCamera->setLookAt(target_pos);

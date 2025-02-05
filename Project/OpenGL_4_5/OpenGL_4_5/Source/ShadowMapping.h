@@ -54,9 +54,9 @@ private:
 	
 	glm::mat4 lightSpaceMatrix;
 
-	int tex_crate_diffuse;
-	int tex_crate_normal;
+	GLuint tex_crate_diffuse;
+	GLuint tex_crate_normal;
 
-	int tex_brick_diffuse;
-	int tex_brick_normal;
+	GLuint tex_brick_diffuse;
+	GLuint tex_brick_normal;
 };

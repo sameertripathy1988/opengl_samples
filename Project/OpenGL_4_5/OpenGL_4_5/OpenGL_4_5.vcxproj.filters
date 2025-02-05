@@ -93,6 +93,9 @@
     <ClCompile Include="Source\ShadowMapping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CascadedShadowMapping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\HelperShader.h">
@@ -174,6 +177,15 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\ShadowMapping.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CascadedShadowMapping.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TestFactory.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TextureManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

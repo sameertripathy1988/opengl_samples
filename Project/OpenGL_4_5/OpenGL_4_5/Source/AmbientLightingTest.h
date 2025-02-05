@@ -24,7 +24,8 @@ public:
 	glm::vec3 lightColor;
 	static float ambientStrength;
 	glm::vec3 eye_pos;
-	MyCamera* mainCamera;
+	unique_ptr<MyCamera> mainCamera;
+	GLuint texture;
 };
 
 #endif 

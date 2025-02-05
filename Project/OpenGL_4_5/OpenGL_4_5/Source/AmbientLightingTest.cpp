@@ -4,7 +4,7 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
 #include <Util.h>
-
+#include "TextureManager.h"
 
 float AmbientLightingTest::ambientStrength;
 
@@ -18,7 +18,7 @@ AmbientLightingTest::AmbientLightingTest()
 
 AmbientLightingTest::~AmbientLightingTest()
 {
-	delete mainCamera;
+	TextureManager::getInstance().clearTextures();
 }
 
 void AmbientLightingTest::InitScene()
@@ -97,13 +97,13 @@ void AmbientLightingTest::InitScene()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(GLfloat), (const GLvoid*)(5 * sizeof(GLfloat)));
 
-	GLuint tex_id = Util::loadTexture("crate.png");
+	texture = TextureManager::getInstance().loadTexture("crate.png");
 	glUseProgram(triangleShader->getProgramID());
 
 	GLint texLoc = glGetUniformLocation(triangleShader->getProgramID(), "basic_texture");
 	glUniform1i(texLoc, 0);
 
-	mainCamera = new MyCamera();
+	mainCamera = make_unique<MyCamera>();
 	mainCamera->setPosition(eye_pos);
 	glm::vec3 target_pos = glm::vec3(0, 0, -10);
 	mainCamera->setLookAt(target_pos);

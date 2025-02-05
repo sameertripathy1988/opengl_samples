@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
+#include "TextureManager.h"
 
 using namespace tdogl;
 
@@ -30,7 +31,7 @@ SpecularLightingTest::SpecularLightingTest()
 
 SpecularLightingTest::~SpecularLightingTest()
 {
-
+	TextureManager::getInstance().clearTextures();
 }
 
 void SpecularLightingTest::InitScene()
@@ -110,18 +111,8 @@ void SpecularLightingTest::InitScene()
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(GLfloat), (const GLvoid*)(5 * sizeof(GLfloat)));
 
 	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	int width, height, channels;
-	unsigned char* pixelData = NULL;
-	pixelData = SOIL_load_image("crate.png", &width, &height, &channels, 4);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)pixelData);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	
+	textureID = TextureManager::getInstance().loadTexture("crate.png");
 
 	glUseProgram(diffuseShader->getProgramID());
 

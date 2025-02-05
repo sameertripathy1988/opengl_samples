@@ -158,6 +158,7 @@
     <ClCompile Include="Helper\MathHelper.cpp" />
     <ClCompile Include="Helper\MyCamera.cpp" />
     <ClCompile Include="Helper\Util.cpp" />
+    <ClCompile Include="Source\CascadedShadowMapping.cpp" />
     <ClCompile Include="Source\ColoredTriangle.cpp" />
     <ClCompile Include="Source\DiffuseLightingTest.cpp" />
     <ClCompile Include="Source\GeometryShaderCircleTest.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="Helper\MyCamera.h" />
     <ClInclude Include="Helper\Util.h" />
     <ClInclude Include="Source\BlankTest.h" />
+    <ClInclude Include="Source\CascadedShadowMapping.h" />
     <ClInclude Include="Source\ColoredTriangle.h" />
     <ClInclude Include="Source\Config.h" />
     <ClInclude Include="Source\DiffuseLightingTest.h" />
@@ -203,6 +205,8 @@
     <ClInclude Include="Source\ShadowMapping.h" />
     <ClInclude Include="Source\SpecularLightingTest.h" />
     <ClInclude Include="Source\TessellationTest.h" />
+    <ClInclude Include="Source\TestFactory.h" />
+    <ClInclude Include="Source\TextureManager.h" />
     <ClInclude Include="Source\TextureMaping.h" />
     <ClInclude Include="Source\ThirdParty\SOIL.h" />
     <ClInclude Include="Source\ThirdParty\tiny_obj_loader.h" />

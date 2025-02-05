@@ -3,6 +3,7 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp> 
 #include "glm\glm\glm.hpp"
+#include "TextureManager.h"
 
 #define PLANE_POSITION glm::vec3(0, -2, -3)
 #define PLANE_SCALE glm::vec3(1.5f, 1.0f, 1.5f)
@@ -25,6 +26,7 @@ light_pos(glm::vec3(0, 2, -5)), eye_pos(glm::vec3(0, 2, 0))
 
 PhongLighting::~PhongLighting()
 {
+	TextureManager::getInstance().clearTextures();
 }
 
 void PhongLighting::InitScene()

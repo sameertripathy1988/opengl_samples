@@ -2,9 +2,9 @@
 out vec4 fColor;
 
 in vec2 textureCoord;
-uniform sampler2D basic_texture;
+uniform sampler2D diffuse_map;
 
 void main()
 {
-	fColor = texture(basic_texture,textureCoord);
+	fColor = texture(diffuse_map,textureCoord);
 }

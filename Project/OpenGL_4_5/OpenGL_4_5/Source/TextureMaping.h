@@ -16,6 +16,7 @@ public:
 	GLuint vbo;
 	GLuint vao;
 	HelperShader* texShader;
+	GLuint texture;
 };
 
 #endif 

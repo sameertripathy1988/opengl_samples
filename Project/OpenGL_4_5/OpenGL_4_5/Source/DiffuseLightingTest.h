@@ -20,16 +20,18 @@ public:
 	GLuint vbo;
 	GLuint vao;
 	GLuint lampvao;
-	HelperShader* diffuseShader;
-	HelperShader* lampShader;
+	
+	shared_ptr<HelperShader> diffuseShader;
+	shared_ptr<HelperShader> lampShader;
+
 	glm::vec3 lightColor;
 	static float ambientStrength;
 	glm::vec3 light_pos;
 	glm::vec3 eye_pos;
 	glm::vec3 target_pos;
 	bool isLightMovementOn;
-	MyCamera* mainCamera;
-
+	unique_ptr<MyCamera> mainCamera;
+	GLuint texture;
 };
 
 #endif 
