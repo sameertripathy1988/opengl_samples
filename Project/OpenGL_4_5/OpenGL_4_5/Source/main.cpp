@@ -17,11 +17,13 @@
 #include "SpecularLightingTest.h"
 #include "PhongLighting.h"
 #include "ShadowMapping.h"
+#include "CascadedShadowMapping.h"
+#include <Util.h>
 
 using namespace std;
 
-#define CURRENT_TEST 13
-#define MAX_TESTS 14
+#define CURRENT_TEST 12
+#define MAX_TESTS 15
 
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 768
@@ -39,8 +41,14 @@ int prev_y = 0;
 int prev_x = 0;
 bool bIsMouseLBDown = false;
 
+float prev_time = 0.0f;
+
 void RenderScene(void)
 {
+	float current_time = GetTickCount64() / 1000.0f;;
+	Util::delta_time = current_time - prev_time;
+	prev_time = current_time;
+
 	currentTest->UpdateScene();
 	currentTest->RenderScene();
 	glutSwapBuffers();
@@ -71,6 +79,7 @@ int main(int argc, char **argv)
 	tests[11] = new SpecularLightingTest();
 	tests[12] = new PhongLighting();
 	tests[13] = new ShadowMapping();
+	tests[14] = new CascadedShadowMapping();
 
 	currentTest = tests[nCurrentTest];
 

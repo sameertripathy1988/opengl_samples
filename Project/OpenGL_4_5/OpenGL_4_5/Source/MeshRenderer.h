@@ -7,7 +7,8 @@ enum MESH_TYPE
 {
 	PLANE,
 	CUBE,
-	MODEL
+	MODEL,
+	LINE
 };
 class MeshRenderer
 {
@@ -31,6 +32,8 @@ public:
 	// Method to calculate the model matrix
 	glm::mat4 getModelMatrix() const;
 	
+	void setLineInfo(const glm::vec3& line1, const glm::vec3& line2, const GLfloat width = 2.0f);
+
 private:
 	shared_ptr<Material> material;
 	MESH_TYPE meshType;
@@ -40,6 +43,10 @@ private:
 	glm::vec3 rotation;
 	glm::vec3 scale;
 
+	glm::vec3 point1;
+	glm::vec3 point2;
+	GLfloat lineWidth;
+
 	GLuint model_vbo;
 	GLuint model_vao;
 	GLuint ebo;
@@ -47,11 +54,11 @@ private:
 	void createPlane();
 	void createCube();
 	void createModel();
+	void createLine();
 
 	void renderPlane();
 	void renderCube();
 	void renderModel();
-
-	
+	void renderLine();	
 };
 

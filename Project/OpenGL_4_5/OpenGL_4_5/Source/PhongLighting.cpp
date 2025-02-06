@@ -1,46 +1,63 @@
 #include "PhongLighting.h"
-#include <Util.h>
-#include <glm/glm/gtc/type_ptr.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp> 
-#include "glm\glm\glm.hpp"
-#include "TextureManager.h"
+#include "Util.h"
 
-#define PLANE_POSITION glm::vec3(0, -2, -3)
-#define PLANE_SCALE glm::vec3(1.5f, 1.0f, 1.5f)
+#define PLANE_POSITION glm::vec3(0, -2, -6)
+#define PLANE_SCALE glm::vec3(2.5f, 1.0f, 2.5f)
 
-#define CUBE_POSITION glm::vec3(0, -1.74f, -3)
+#define CUBE_POSITION glm::vec3(0, -1.75f, -6)
 #define CUBE_SCALE glm::vec3(0.25f, 0.25f, 0.25f)
 
-#define LIGHT_POSITION glm::vec3(0, -1.2, -3)
+#define LIGHT_POSITION glm::vec3(0.3, 0.9, -9)
 #define LIGHT_SCALE glm::vec3(0.05f, 0.05f, 0.05f)
+#define LIGHT_DIRECTION CUBE_POSITION-LIGHT_POSITION
 
 #define CAMERA_POSITION glm::vec3(0, 0, 0)
 #define CAMERA_TARGET PLANE_POSITION
 
-float rot = 0.0f;
-PhongLighting::PhongLighting() : isDirty(false), enableCameraMovement(false), enableLightMovement(false), 
+
+PhongLighting::PhongLighting() : isDirty(false), enableCameraMovement(false), enableLightMovement(false),
 light_pos(glm::vec3(0, 2, -5)), eye_pos(glm::vec3(0, 2, 0))
 {
-	name = "OpenGL 4.5 Phong Lighting Test";
+	name = "OpenGL 4.5 Directional Lighting Test";
 }
 
 PhongLighting::~PhongLighting()
 {
-	TextureManager::getInstance().clearTextures();
+	if (tex_crate_diffuse)
+	{
+		glDeleteTextures(1, &tex_crate_diffuse);
+	}
+	if (tex_crate_normal)
+	{
+		glDeleteTextures(1, &tex_crate_normal);
+	}
+	if (tex_brick_diffuse)
+	{
+		glDeleteTextures(1, &tex_brick_diffuse);
+	}
+	if (tex_brick_normal)
+	{
+		glDeleteTextures(1, &tex_brick_normal);
+	}
 }
 
 void PhongLighting::InitScene()
 {
+	tex_crate_diffuse = Util::loadTexture("crate.png");
+	tex_crate_normal = Util::loadTexture("crate_normal.png");
+
+	tex_brick_diffuse = Util::loadTexture("Textures/brickwall.jpg");
+	tex_brick_normal = Util::loadTexture("Textures/brickwall_normal.jpg");
+
 	//Camera
 	//-----------------------------------------------------------------------------------------
-	mainCamera = new MyCamera();
+	mainCamera = make_unique<MyCamera>();
 	mainCamera->setPosition(CAMERA_POSITION);
-	target_pos = glm::vec3(0, 0, -5);
 	mainCamera->setLookAt(CAMERA_TARGET); //Cube Position
 
 	mainCamera->refreshViewMatrix();
 	//-----------------------------------------------------------------------------------------
-	
+
 	//Cube Mesh
 	//-----------------------------------------------------------------------------------------
 	cubeMesh = make_unique<MeshRenderer>();
@@ -49,51 +66,16 @@ void PhongLighting::InitScene()
 	cubeMesh->setScale(CUBE_SCALE);
 
 	phongShader = make_shared<HelperShader>();
-	phongShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
+	phongShader->createProgram("DirectionalLight.vert", "DirectionalLight.frag");
 
-	phongMaterial = make_shared<Material>();
-	phongMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "crate.png");
-	phongMaterial->setTextureInfo(TEXTURE_TYPE::NORMAL, "crate_normal.png");
-	phongMaterial->setShader(phongShader);
-
-	cubeMesh->setMaterial(phongMaterial);
-
-	phongMaterial->bind();
-	phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	phongMaterial->linkMatrixToShader("M", &cubeMesh->getModelMatrix()[0][0]);
-	phongMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
-	phongMaterial->linkIntToShader("enable_normal_map", 0);
-
-	phongMaterial->unbind();
 	//-----------------------------------------------------------------------------------------
-	
+
 	//Plane Mesh
 	//-----------------------------------------------------------------------------------------
 	planeMesh = make_unique<MeshRenderer>();
 	planeMesh->create(PLANE);
 	planeMesh->setTranslation(PLANE_POSITION);
 	planeMesh->setScale(PLANE_SCALE);
-
-	planeShader = make_shared<HelperShader>();
-	planeShader->createProgram("PhongLighting.vsh", "PhongLighting.fsh");
-
-	planeMaterial = make_shared<Material>();
-	planeMaterial->setTextureInfo(TEXTURE_TYPE::DIFFUSE, "Textures/brickwall.jpg");
-	planeMaterial->setTextureInfo(TEXTURE_TYPE::NORMAL, "Textures/brickwall_normal.jpg");
-	planeMaterial->setShader(planeShader);
-	planeMaterial->bind();
-
-	planeMesh->setMaterial(planeMaterial);
-
-	planeMaterial->bind();
-	planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
-	planeMaterial->linkVec3ToShader("light_pos", LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
-	planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
-	planeMaterial->linkIntToShader("enable_normal_map", 1);
-	planeMaterial->unbind();
 
 	//-----------------------------------------------------------------------------------------
 
@@ -107,38 +89,22 @@ void PhongLighting::InitScene()
 	lampShader = make_shared<HelperShader>();
 	lampShader->createProgram("MVP_LampFlatColor.vsh", "MVP_LampFlatColor.fsh");
 
-	lampMaterial = make_shared<Material>();
-	lampMaterial->setShader(lampShader);
-	lampMaterial->bind();
+	light_pos = LIGHT_DIRECTION;
 
-	lampMesh->setMaterial(lampMaterial);
-	
-	lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-	lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-	lampMaterial->linkMatrixToShader("M", &lampMesh->getModelMatrix()[0][0]);
-	lampMaterial->linkVec3ToShader("flat_color", 1.0f, 1.0f, 1.0f);
-	
+
+
 	//-----------------------------------------------------------------------------------------
 }
 
 void PhongLighting::RenderScene()
 {
-	glClearColor(0.25, 0.25, 0.25, 1.0); // clear white
+	glEnable(GL_DEPTH_TEST);
+	//Fetch the depth map and Render the scene in 2nd Pass
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glClearColor(0.5, 0.5, 0.5, 1.0); // clear white
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Render Lamp Mesh
-	
-	lampMesh->render();
-	
-	//// Render Plane Mesh
-	
-	planeMesh->render();
-	
-	// Render Cube Mesh
-	
-	cubeMesh->render();
-	
-	
+	RenderDefaultScene();
 }
 
 void PhongLighting::UpdateScene()
@@ -146,37 +112,7 @@ void PhongLighting::UpdateScene()
 	if (isDirty)
 	{
 		mainCamera->refreshViewMatrix();
-		lampMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-		lampMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-
-		phongMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-		phongMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-		phongMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
-
-		planeMaterial->linkMatrixToShader("P", &(mainCamera->getProjectionMatrix()[0][0]));
-		planeMaterial->linkMatrixToShader("V", &(mainCamera->getViewMatrix()[0][0]));
-		planeMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-		planeMaterial->linkVec3ToShader("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
-
-		phongMaterial->linkVec3ToShader("light_pos", light_pos.x, light_pos.y, light_pos.z);
-		
 		isDirty = false;
-	}
-}
-
-void PhongLighting::UpdateInput(char x, int y, int z)
-{
-	switch (x)
-	{
-	case GLUT_KEY_DOWN://Q //Decrease the ambient Light
-		
-		break;
-	case GLUT_KEY_UP://W //Increase the ambient Light
-		
-		break;
-	default:
-		break;
 	}
 }
 
@@ -184,7 +120,7 @@ void PhongLighting::UpdateButtonUp(char x)
 {
 	switch (x)
 	{
-	case 'c':
+	case 'm':
 		enableCameraMovement = !enableCameraMovement;
 		break;
 	case 'l':
@@ -194,7 +130,7 @@ void PhongLighting::UpdateButtonUp(char x)
 		enableLightMovement = false;
 		enableCameraMovement = false;
 		break;
-	case 'd':
+	case 'u':
 		printDebugInfo();
 		break;
 	default:
@@ -206,19 +142,50 @@ void PhongLighting::UpdateMouseInput(int dx, int dy, bool bIsMouseLBDown)
 {
 	if (enableCameraMovement)
 	{
-		mainCamera->setOffsetPosition(glm::vec3(0, dy * 0.2f, 0));
-		mainCamera->refreshViewMatrix();
-		/*rot += dx * 0.2f;
-		planeMesh->setRotation(glm::vec3(rot, 0, 0));*/
-		//planeMaterial->linkMatrixToShader("M", &planeMesh->getModelMatrix()[0][0]);
+		if (bIsMouseLBDown)
+			mainCamera->processMouseMovement(dx, -dy);
 	}
 
-	if(enableLightMovement)
+	if (enableLightMovement)
 	{
 		lampMesh->setTranslation(lampMesh->getTranslation() + glm::vec3(dx * 0.2f, -dy * 0.2f, 0));
 		light_pos = lampMesh->getTranslation();
+		light_dir = CUBE_POSITION - light_pos;
 	}
 	isDirty = true;
+}
+
+void PhongLighting::UpdateInput(unsigned char x, int y, int z)
+{
+
+	if (enableCameraMovement)
+	{
+		glm::vec3 direction(0.0f);
+		switch (x) {
+		case 'w':
+			direction.z = 1.0f;
+			break;
+		case 's':
+			direction.z = -1.0f;
+			break;
+		case 'a':
+			direction.x = -1.0f;
+			break;
+		case 'd':
+			direction.x = 1.0f;
+			break;
+		case 'q':
+			direction.y = 1.0f;
+			break;
+		case 'e':
+			direction.y = -1.0f;
+			break;
+		default:
+			break;
+		}
+		cout << Util::delta_time << endl;
+		mainCamera->processKeyboardMovement(direction, 0.016f);
+	}
 }
 
 void PhongLighting::printDebugInfo()
@@ -234,10 +201,39 @@ void PhongLighting::printDebugInfo()
 		<< lampMesh->getTranslation().z << endl;
 }
 
-void PhongLighting::clear()
+void PhongLighting::RenderDefaultScene()
 {
-	BlankTest::clear();
-	delete mainCamera;
-	mainCamera = nullptr;
-}
 
+	lampShader->use();
+	lampShader->setMat4("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	lampShader->setMat4("V", &(mainCamera->getViewMatrix()[0][0]));
+	lampShader->setMat4("M", &lampMesh->getModelMatrix()[0][0]);
+	lampShader->setVec3("flat_color", 1.0f, 1.0f, 1.0f);
+	lampMesh->render();
+
+	//Render Plane Mesh
+	phongShader->use();
+
+	phongShader->setTexture("diffuse_map", tex_brick_diffuse, 0);
+
+	phongShader->setMat4("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	phongShader->setMat4("V", &(mainCamera->getViewMatrix()[0][0]));
+	phongShader->setMat4("M", &planeMesh->getModelMatrix()[0][0]);
+	phongShader->setVec3("light_dir", light_dir.x, light_dir.y, light_dir.z);
+	phongShader->setVec3("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
+
+	planeMesh->render();
+
+	//Render Cube Mesh
+	phongShader->use();
+	phongShader->setTexture("diffuse_map", tex_crate_diffuse, 0);
+	
+
+	phongShader->setMat4("P", &(mainCamera->getProjectionMatrix()[0][0]));
+	phongShader->setMat4("V", &(mainCamera->getViewMatrix()[0][0]));
+	phongShader->setMat4("M", &cubeMesh->getModelMatrix()[0][0]);
+	phongShader->setVec3("light_dir", light_dir.x, light_dir.y, light_dir.z);
+	phongShader->setVec3("view_pos", mainCamera->getPosition().x, mainCamera->getPosition().y, mainCamera->getPosition().z);
+
+	cubeMesh->render();
+}

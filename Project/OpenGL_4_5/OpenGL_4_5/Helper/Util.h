@@ -9,6 +9,7 @@ public:
 	Util();
 	~Util();
 	 static int loadTexture(const std::string& path);
+	 static float delta_time;
 private:
 
 };

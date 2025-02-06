@@ -26,6 +26,9 @@ void MeshRenderer::render()
 	case MODEL:
 		renderModel();
 		break;
+	case LINE:
+		renderLine();
+		break;
 	default:
 		break;
 	}
@@ -44,6 +47,9 @@ void MeshRenderer::create(const MESH_TYPE& meshType_)
 			break;
 		case MODEL:
 			createModel();
+			break;
+		case LINE:
+			createLine();
 			break;
 		default:
 			break;
@@ -85,43 +91,46 @@ void MeshRenderer::createPlane()
 
 void MeshRenderer::createCube()
 {
-	//VBO created in memory
 	glGenBuffers(1, &model_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, model_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_pos_uv_n), cube_pos_uv_n, GL_STATIC_DRAW);
 
-	//VAO created
 	glGenVertexArrays(1, &model_vao);
 	glBindVertexArray(model_vao);
 
-	//VAO attached to VBO
+	GLsizei stride = 8 * sizeof(GLfloat);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0); // Position
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, model_vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
-
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(3 * sizeof(GLfloat))); // UV
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 8 * sizeof(GLfloat), (const GLvoid*)(3 * sizeof(GLfloat)));
-
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(5 * sizeof(GLfloat))); // Normal
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_TRUE, 8 * sizeof(GLfloat), (const GLvoid*)(5 * sizeof(GLfloat)));
 }
 
 void MeshRenderer::createModel()
 {
-	switch (meshType)
-	{
-		case PLANE:
-			createPlane();
-			break;
-		case CUBE:
-			createCube();
-			break;
-		case MODEL:
-			createModel();
-			break;
-		default:
-			break;
-	}
+}
+
+void MeshRenderer::createLine()
+{
+	float lineVertices[] = {
+		point1.x, point1.y, point1.z,  // Point A (x, y, z)
+		 point2.x,  point2.y, point2.z   // Point B (x, y, z)
+	};
+
+	glGenVertexArrays(1, &model_vao);
+	glGenBuffers(1, &model_vbo);
+
+	glBindVertexArray(model_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, model_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(lineVertices), lineVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
 void MeshRenderer::renderPlane()
@@ -139,6 +148,12 @@ void MeshRenderer::renderCube()
 
 void MeshRenderer::renderModel()
 {
+}
+void MeshRenderer::renderLine()
+{
+	glBindVertexArray(model_vao);
+	glLineWidth(lineWidth);
+	glDrawArrays(GL_LINES, 0, 2);
 }
 void MeshRenderer::render(shared_ptr<HelperShader> shader)
 {
@@ -208,4 +223,11 @@ glm::mat4 MeshRenderer::getModelMatrix() const
 	glm::mat4 mat_scale = glm::scale(glm::mat4(1), scale);
 	model = mat_translation * mat_rotation * mat_scale;
 	return model;
+}
+
+void MeshRenderer::setLineInfo(const glm::vec3& p1, const glm::vec3& p2, const GLfloat width)
+{
+	point1 = p1;
+	point2 = p2;
+	lineWidth = width;
 }

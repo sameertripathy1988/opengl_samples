@@ -1,6 +1,8 @@
 #include "Util.h"
 #include "ThirdParty\SOIL.h"
 
+float Util::delta_time;
+
 Util::Util()
 {
 }

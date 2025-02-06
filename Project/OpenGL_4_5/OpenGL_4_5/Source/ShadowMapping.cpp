@@ -13,6 +13,7 @@
 #define CAMERA_POSITION glm::vec3(0, 0, 0)
 #define CAMERA_TARGET PLANE_POSITION
 
+
 ShadowMapping::ShadowMapping() : isDirty(false), enableCameraMovement(false), enableLightMovement(false),
 light_pos(glm::vec3(0, 2, -5)), eye_pos(glm::vec3(0, 2, 0))
 {
@@ -53,7 +54,6 @@ void ShadowMapping::InitScene()
 	//-----------------------------------------------------------------------------------------
 	mainCamera = make_unique<MyCamera>();
 	mainCamera->setPosition(CAMERA_POSITION);
-	target_pos = glm::vec3(0, 0, -5);
 	mainCamera->setLookAt(CAMERA_TARGET); //Cube Position
 
 	mainCamera->refreshViewMatrix();
